@@ -1,0 +1,31 @@
+{
+    "name": "phossa/phossa-route",
+    "version": "1.0.0",
+    "license": "MIT",
+    "type": "library",
+    "description": "The sql query builder package of Phossa framework",
+    "keywords": ["phossa"],
+    "homepage": "https://github.com/phossa/phossa-route",
+    "authors": [
+        {
+            "name": "Hong Zhang",
+            "homepage": "https://github.com/phossa"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Phossa\\Route\\": "src/" }
+    },
+    "autoload-dev": {
+        "psr-0": { "Phossa\\Route\\": "tests/src/" }
+    },
+    "require": {
+        "php": ">=5.4.0",
+        "phossa-shared": ">=1.0.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.*"
+    },
+    "archive": {
+        "exclude": ["!vendor", "tests", "*phpunit.xml",  "composer.lock"]
+    }
+}

@@ -1,6 +1,5 @@
 {
     "name": "phossa/phossa-route",
-    "version": "1.0.0",
     "license": "MIT",
     "type": "library",
     "description": "The sql query builder package of Phossa framework",

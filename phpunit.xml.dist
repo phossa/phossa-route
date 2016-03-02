@@ -15,7 +15,11 @@
             <directory>./tests/src/</directory>
         </testsuite>
     </testsuites>
-
+    <php>
+      <const name="WEB_SERVER_HOST" value="localhost" />
+      <const name="WEB_SERVER_PORT" value="3456" />
+      <const name="WEB_SERVER_DOCROOT" value="./public" />
+    </php>
     <filter>
         <whitelist>
             <directory>./src/</directory>

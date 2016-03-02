@@ -3,8 +3,8 @@
 Introduction
 ---
 
-phossa-route is a HTTP response management libraray for PHP. It routes base on
-HTTP request including URL, cookies, HTTP headers (such as `Accept-Language`)
+phossa-route is an application level routing libraray for PHP. It routes base
+on HTTP request including URL, cookies, HTTP headers (e.g. `Accept-Language`)
 etc. It responses with HTTP redirecting or transparent URL rewriting. Also it
 gives suggestions for HTTP response headers (cache related etc.)
 
@@ -36,7 +36,9 @@ Getting started
   }
   ```
 
-- Setup URL rewriting to do routing with `index.php`
+- **URL rewrite*
+
+  Setup URL rewriting to do routing with `index.php`
 
   - Apache `.htaccess` with `mod_rewrite` engine is on
 
@@ -89,9 +91,9 @@ Getting started
     }
     ```
 
-- Pick a routing scheme
+- **Pick a routing scheme**
 
-  Pick a [routing scheme][scheme] which is good enough for you.
+  Pick a [routing scheme][#scheme] which is good enough for you.
 
 Routing issues
 ---
@@ -108,7 +110,7 @@ modules or handlers.
     a *NEAREST* server, this is common in content distribution network (CDN),
     and is done at network level.
 
-  - **Web server routing**
+  - *Web server routing*
 
     For performance reason, some of the simple routing can be done at web
     server level, such as using apache or ngix configs to do simple routing.
@@ -127,8 +129,8 @@ modules or handlers.
 
   - *Routing: pick the right handler*
 
-    The core target of routing library is to pick a right handler for the given
-    URL or other infomations.
+    The core target of app routing library is to pick a right handler for the
+    given URL or other infomations.
 
   - *Routing utilities*
 
@@ -150,12 +152,12 @@ modules or handlers.
 <a name="scheme"></a>URL routing schemes
 ---
 
-There are different routings schemes base on server setup and the way user
-prefers for their URLs.
+There are couple of URL based routing schemes supported in this library.
 
-- Query parameter routing (QPR)
+- **Query Parameter Routing (QPR)**
 
-  The routing info is directly embedded in the URL query
+  The routing info is directly embedded in the URL query. The advantage of this
+  scheme is fast and clear.
 
   ```
   http://servername/path/index.php?c=controller&a=action&id=1&name=nick
@@ -167,7 +169,7 @@ prefers for their URLs.
   http://servername/path/?r=controller-action-id-1-name-nick
   ```
 
-- Predefined parameter pairs (PPP)
+- **Predefined Parameter Pairs (PPP)**
 
   Using predefined parameter and value pairs like the following
 
@@ -176,8 +178,8 @@ prefers for their URLs.
   ```
 
   Parameter orders can be arbitary, but have to appear in pairs. Advantage of
-  this scheme is fast and clean heirachy for static file caching. If URL
-  rewriting is used, the above can be written into the following,
+  this scheme is fast, web crawler friendly and easy for static file caching.
+  If URL rewriting is used, the above can be written into the following,
 
   ```
   http://servername/path/controller/action/id/1/name/nick
@@ -189,6 +191,10 @@ prefers for their URLs.
   ```
   http://servername/path/controller-action-id-1-name-nick
   ```
+
+- **Regular Expression Routing (RER)**
+
+  This sheme is pretty popular.
 
 Usage
 ---

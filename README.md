@@ -36,7 +36,7 @@ Getting started
   }
   ```
 
-- **URL rewrite*
+- **URL rewrite**
 
   Setup URL rewriting to do routing with `index.php`
 
@@ -93,7 +93,7 @@ Getting started
 
 - **Pick a routing scheme**
 
-  Pick a [routing scheme][#scheme] which is good enough for you.
+  Pick a [routing scheme](#scheme) which is good enough for you.
 
 Routing issues
 ---
@@ -127,10 +127,17 @@ modules or handlers.
 
 - **App routing & utilities**
 
-  - *Routing: pick the right handler*
+  - *Routing*
 
-    The core target of app routing library is to pick a right handler for the
-    given URL or other infomations.
+    - Pick a right handler
+
+      The core target of app routing library is to pick a right handler for the
+      given URL or other infomations.
+
+    - Pick a right host
+
+      Sometimes, redirecting is wanted. For example, redirecting to a mobile
+      content server or a secure (https) server.
 
   - *Routing utilities*
 
@@ -141,8 +148,8 @@ modules or handlers.
 
     - Parameter validations
 
-      Usually this is done in the routine, but can be extracted out to do some
-      simple validations.
+      Usually this is done in the handler but can be extracted out to do some
+      common and simple validations.
 
     - Execution of common routines
 
@@ -163,21 +170,21 @@ There are couple of URL based routing schemes supported in this library.
   http://servername/path/index.php?c=controller&a=action&id=1&name=nick
   ```
 
-  Or
+  Or use a single parameter
 
   ```
   http://servername/path/?r=controller-action-id-1-name-nick
   ```
 
-- **Predefined Parameter Pairs (PPP)**
+- **Parameter Pairs Routing (PPR)**
 
-  Using predefined parameter and value pairs like the following
+  Using parameter and value pairs like the following
 
   ```
   http://servername/path/index.php/controller/action/id/1/name/nick
   ```
 
-  Parameter orders can be arbitary, but have to appear in pairs. Advantage of
+  Parameters order can be arbitary, but have to appear in pairs. Advantage of
   this scheme is fast, web crawler friendly and easy for static file caching.
   If URL rewriting is used, the above can be written into the following,
 
@@ -195,6 +202,14 @@ There are couple of URL based routing schemes supported in this library.
 - **Regular Expression Routing (RER)**
 
   This sheme is pretty popular.
+
+  ```
+  // user id provided
+  http://servername/path/user/list/20162
+
+  // user id & name
+  http://servername/path/user/list/phossa/20162
+  ```
 
 Usage
 ---
@@ -216,6 +231,35 @@ Features
 
 Public APIs
 --
+- `RouteCollector` APIs
+
+  - `addRoute(string $name, string|callable $pattern, string|callable $methodOrCallable = 'GET'): this`
+
+    Add one route with `$name` to the collector.
+
+    If `$pattern` is a string, it will be interpreted as a pattern to match
+    against `PATH_INFO`. If it is a callable, it will be executed with the
+    `Request` object as argument.
+
+    The last parameter specifies the HTTP method in upper case, either 'GET',
+    'POST' or 'GET|POST' etc. If it is a callable, then it will be executed
+    with the `Request` object as argument.
+
+- `Dispatcher` APIs
+
+  - `__construt(array|RouteCollector $routeCollectors = [])`
+
+    Instantiation of the dispatcher.
+
+  - `dispatch(Request $request, RouteCollector $routeCollector = null): this`
+
+    Dispatch base on the info from `$request`. If `$routeCollector` parameter
+    is provided, use this route collector as the first collector.
+
+  - `addRouteCollector(RouteCollector $routeCollector): this`
+
+    Add route collector to the collector pool. Order of addition matters. The
+    first collector added will be checked first during the dispatching.
 
 Dependencies
 ---

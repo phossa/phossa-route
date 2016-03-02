@@ -168,11 +168,11 @@ class Request
     /**
      * fix query in $this->server
      *
-     * @param  array $parts parsed url
+     * @param  array &$parts parsed url
      * @return void
      * @access protected
      */
-    protected function fixUrlQuery(array $parts)
+    protected function fixUrlQuery(array &$parts)
     {
         $vars = &$this->vars;
 
@@ -193,15 +193,16 @@ class Request
     /**
      * fix path in $this->server
      *
-     * @param  array $parts parsed url
+     * @param  array &$parts parsed url
      * @return void
      * @access protected
      */
-    protected function fixUrlPath(array $parts)
+    protected function fixUrlPath(array &$parts)
     {
         $server = &$this->vars['server'];
 
         if (isset($parts['path'])) {
+            $parts['path'] = rawurldecode($parts['path']);
             if (isset($server['PATH_INFO'])) {
                 $uri = explode(
                     $server['PATH_INFO'],

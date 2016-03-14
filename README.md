@@ -1,4 +1,4 @@
-# phossa-route - fast & full-fledged routing library
+# phossa-route
 
 Introduction
 ---

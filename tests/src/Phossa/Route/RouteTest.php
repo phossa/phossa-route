@@ -129,7 +129,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFilters()
     {
-        $this->assertTrue(empty($this->object->getFilters()));
+        $this->assertTrue([] == $this->object->getFilters());
         $this->object->addFilter('m.phossa.com', 'server_name');
         $this->assertEquals(['server_name' => 'm.phossa.com'],
             $this->object->getFilters());

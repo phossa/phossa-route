@@ -15,6 +15,7 @@ HHVM. It is compliant with [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4].
 Why another routing library ?
 ---
 
+
 - [Super fast](#performance) ! If it matters to you.
 
 - Support different [routing strategies](#strategy) and combinations of these
@@ -167,7 +168,7 @@ Getting started
   Routes can be grouped into different collections by using multiple collectors.
 
   ```php
-  // '/usr' related
+  // '/user' related
   $collector_user = (new Route\Collector\Collector())
       ->addGet('/user/list/{id:d}', 'handler1')
       ->addGet('/user/view/{id:d}', 'handler2')
@@ -180,20 +181,6 @@ Getting started
 
   $dispatcher->addCollector($collector_user)
              ->addCollector($collector_blog);
-  ```
-
-- **Route handler**
-
-  Route handler can be a closure, a callable or even a pseudo callable like
-  `['className', 'method']` which will be resolved by the dispatcher's resolver
-  to a real callable.
-
-  ```php
-  // implements Phossa\Route\Handler\ResolverInterface
-  $resolver = new \myOwnResolver();
-
-  // inject resolver during instantiation of dispatcher
-  $dispatcher = new Phossa\Route\Dispatcher($collector, $resolver);
   ```
 
 <a name="dispatch"></a>Dispatching
@@ -211,20 +198,20 @@ Getting started
   $dispatcher->dispatch();
   ```
 
-  `dispatch()` takes no arguments, it will collect information from super
-  globals like `$_SERVER` and `$_REQUEST` and dispatch to the right routines
-  or callables base on route definitions.
+  `dispatch()` takes no arguments, it will collect informations from super
+  globals like `$_SERVER` and `$_REQUEST` and dispatches to the right routine
+  or callable base on route definition.
 
 - **Dispatch with an Url**
 
-  Inside the script, user may redirect to a new url by,
+  Inside script, user may redirect to a new url by,
 
   ```php
   $dispatcher->dispatchUrl('GET', '/error404');
   ```
 - **Match instead of dispatching**
 
-  Instead of executing handlers by default, more control if using `match()`
+  Instead of executing handler, more control if using `match()`
 
   ```php
   // use info from $_SERVER etc.
@@ -249,6 +236,7 @@ Getting started
   `matchUrl()` is also provided.
 
 <a name="handler"></a>Handlers and default handlers
+---
 
 - **Multiple handlers**
 
@@ -256,38 +244,45 @@ Getting started
   matching status.
 
   ```php
-  $route = (new Route('GET', '/user/{action:xd}/{id:d}', function($result) {
-              // handler for 200 status
-              $user_id = $result->getParameter('id');
-              // ...
-            })->addHandler(Context\ResultInterface::METHOD_NOT_ALLOWED, 'handler1');
+  use Phossa\Route\Route;
+  use Phossa\Route\Status;
+
+  $route = (new Route('GET', '/user/{action:xd}/{id:d}',
+              // handler for Status::OK
+              function($result) {
+                  $user_id = $result->getParameter('id');
+                  // ...
+              }
+          )
+          // add handler for METHOD_NOT_ALLOWED
+          ->addHandler(Status::METHOD_NOT_ALLOWED, 'handler1');
   ```
 
   Handler `handler1` will be executed if route matches but method is not right.
 
-- **<a name="default"></a>Default handlers
+- **<a name="default"></a>Default handlers**
 
   Like routes have different handlers, dispatcher and collectors can have
-  default handlers if no handler found for the result.
+  default handlers if no handler set in the result.
 
-  Global (dispatcher) level handlers,
+  Dispatcher level handlers,
 
   ```php
-  use Phossa\Route\Context\ResultInterface;
+  use Phossa\Route\Status;
   // ...
 
   $dispatcher
     ->addHandler(
-        ResultInterface::MOVED_PERMANENTLY, function($result) {
+        Status::MOVED_PERMANENTLY, function($result) {
         // ...
         })
     ->addHandler(
-        ResultInterface::SERVICE_UNAVAILABLE, function($result) {
+        Status::SERVICE_UNAVAILABLE, function($result) {
         });
     // ...
   ```
 
-  Samething applies to the collectors.
+  Same thing applies to the collectors.
 
 - **Handler resolving**
 
@@ -308,100 +303,20 @@ Getting started
   Users may write their own handler resolver by extending `ResolverAbstract`
   class.
 
-- **Pick a routing scheme**
-
-  Pick a [routing scheme](#scheme) which is good enough for you.
-
-Routing issues
+<a name="strategy"></a>Extensions
 ---
 
-Base on the request informations, such as request device, source ip, request
-method etc., service provider may direct request to different hosts, servers,
-app modules or handlers.
 
-- **Diffrent routing strategies**
-
-  - *Network level routing*
-
-    Common case, such as routing based on request's source ip, routes the
-    request to a *NEAREST* server, this is common in content distribution
-    network (CDN), and is done at network level.
-
-  - *Web server routing*
-
-    For performance reason, some of the simple routing can be done at web
-    server level, such as using apache or ngix configs to do simple routing.
-
-    For example, if your server goes down for maintenance, you may replace
-    the `.htaccess` file as follows,
-
-    ```
-    DirectorySlash Off
-    Options -MultiViews
-    DirectoryIndex maintenance.php
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-l
-    RewriteRule ^ maintenance.php [QSA,L]
-    ```
-
-  - *App server routing*
-
-    App server routing is what we are focusing on here. It solves much more
-    complicated issues, and much more flexible. High performance can be
-    achieved by using effective algorithms.
-
-    Usually, routing is done at a single point `index.php`. All the requests
-    are configured to be handled by this script first and routed to different
-    routines.
-
-- **App routing & utilities**
-
-  - *Routing*
-
-    - Pick a right handler
-
-      The core target of app routing library is to pick a right handler for the
-      given URL or other infomations.
-
-    - Pick a right host
-
-      Sometimes, redirecting is wanted. For example, redirecting to a mobile
-      content server or a secure (https) server.
-
-  - *Routing utilities*
-
-    - Parse input parameters
-
-      Usually, the by-product of URL matching is to parse input parameters and
-      pass over to the handler.
-
-    - Parameter validations
-
-      Usually this is done in the handler but can be extracted out to do some
-      common and simple validations.
-
-    - Execution of common routines
-
-      Some URLs can be configured to execute some routines, such as
-      authentication routine, before handling control over to the handler.
-
-<a name="scheme"></a>URL routing schemes
+<a name="strategy"></a>Routing strategies
 ---
 
-There are couple of URL based routing schemes supported in this library.
+There are a couple of URL based routing strategies supported by default in this
+library. Different strategies can be combined together in one dispatcher.
 
 - **Query Parameter Routing (QPR)**
 
   The routing info is directly embedded in the URL query. The advantage of this
   scheme is fast and clear.
-
-  ```
-  http://servername/path/index.php?c=controller&a=action&id=1&name=nick
-  ```
-
-  Or use a single parameter
 
   ```
   http://servername/path/?r=controller-action-id-1-name-nick
@@ -447,6 +362,75 @@ There are couple of URL based routing schemes supported in this library.
   // user id & name
   http://servername/path/user/list/20162/phossa
   ```
+
+  **RER** is the routing strategy of `Phossa\Route\Collector\Collector` class.
+
+<a name="algorithm"></a>Regex matching algorithms
+---
+
+- **FastRoute algorithm**
+
+  This *Group Count Based algorithm* is implemented in
+  `Phossa\Route\Regex\ParserGcb` class and explained in  detail in this
+  [article](http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html).
+
+  **phossa-route** uses this algorithm by default.
+
+-- **Standard algorithm**
+
+  This algorithm is developed by phossa-route and a little bit slower than the
+  fastRoute GCB algorithm. It is implemented in `Phossa\Route\Regex\ParserStd`
+  class.
+
+- **Comments on routing algorithm**
+
+  - It does **NOT** matter that much as you may think.
+
+    If you are using routing library in your application, different algorithms
+    may differes only 0.1 - 0.2ms which is meaningless for a big application.
+
+  - If you **DO** care about routing speed
+
+    Use different routing strategy like *Parameter Pairs Routing (PPR)* which
+    is much [faster](#performance) than the regex based routing.
+
+    Also by carefully design your routes, you may achieve better results even
+    if you are using a slower algorithm.
+
+  - Try [network routing or server routing](#issue) if you just can NOT help
+    it.
+
+
+- **App routing & utilities**
+
+  - *Routing*
+
+    - Pick a right handler
+
+      The core target of app routing library is to pick a right handler for the
+      given URL or other infomations.
+
+    - Pick a right host
+
+      Sometimes, redirecting is wanted. For example, redirecting to a mobile
+      content server or a secure (https) server.
+
+  - *Routing utilities*
+
+    - Parse input parameters
+
+      Usually, the by-product of URL matching is to parse input parameters and
+      pass over to the handler.
+
+    - Parameter validations
+
+      Usually this is done in the handler but can be extracted out to do some
+      common and simple validations.
+
+    - Execution of common routines
+
+      Some URLs can be configured to execute some routines, such as
+      authentication routine, before handling control over to the handler.
 
 Usage
 ---
@@ -513,55 +497,7 @@ Public APIs
 
     Match and dispatch the result array to corresponding handler.
 
-Performance
----
 
-#### Worst-case matching
-
-This benchmark matches the last route and unknown route. It generates a
-randomly prefixed and suffixed route in an attempt to thwart any optimization.
-1,000 routes each with 8 arguments.
-
-This benchmark consists of 14 tests. Each test is executed 1,000 times, the
-results pruned, and then averaged. Values that fall outside of 3 standard
-deviations of the mean are discarded.
-
-Test Name | Results | Time | + Interval | Change
---------- | ------- | ---- | ---------- | ------
-Phossa PPR - unknown route (1000 routes) | 998 | 0.0000724551 | +0.0000000000 | baseline
-Phossa PPR - last route (1000 routes) | 993 | 0.0000925307 | +0.0000200755 | 28% slower
-Symfony2 Dumped - unknown route (1000 routes) | 998 | 0.0004353616 | +0.0003629065 | 501% slower
-Phroute - last route (1000 routes) | 999 | 0.0006205601 | +0.0005481050 | 756% slower
-Phossa - unknown route (1000 routes) | 998 | 0.0006903790 | +0.0006179239 | 853% slower
-FastRoute - unknown route (1000 routes) | 1,000 | 0.0006911943 | +0.0006187392 | 854% slower
-FastRoute - last route (1000 routes) | 999 | 0.0006962751 | +0.0006238200 | 861% slower
-Phroute - unknown route (1000 routes) | 998 | 0.0007134676 | +0.0006410125 | 885% slower
-Symfony2 Dumped - last route (1000 routes) | 993 | 0.0008066097 | +0.0007341545 | 1013% slower
-Phossa - last route (1000 routes) | 998 | 0.0009104498 | +0.0008379947 | 1157% slower
-Symfony2 - unknown route (1000 routes) | 989 | 0.0023998006 | +0.0023273455 | 3212% slower
-Symfony2 - last route (1000 routes) | 999 | 0.0025880890 | +0.0025156339 | 3472% slower
-Aura v2 - last route (1000 routes) | 981 | 0.0966411463 | +0.0965686912 | 133281% slower
-Aura v2 - unknown route (1000 routes) | 992 | 0.1070026719 | +0.1069302168 | 147581% slower
-
-
-#### First route matching
-
-This benchmark tests how quickly each router can match the first route. 1,000
-routes each with 8 arguments.
-
-This benchmark consists of 7 tests. Each test is executed 1,000 times, the
-results pruned, and then averaged. Values that fall outside of 3 standard
-deviations of the mean are discarded.
-
-Test Name | Results | Time | + Interval | Change
---------- | ------- | ---- | ---------- | ------
-FastRoute - first route | 999 | 0.0000403543 | +0.0000000000 | baseline
-Phroute - first route | 998 | 0.0000405911 | +0.0000002368 | 1% slower
-Symfony2 Dumped - first route | 999 | 0.0000590617 | +0.0000187074 | 46% slower
-Phossa PPR - first route | 977 | 0.0000678727 | +0.0000275184 | 68% slower
-Phossa - first route | 999 | 0.0000898475 | +0.0000494932 | 123% slower
-Symfony2 - first route | 998 | 0.0003983802 | +0.0003580259 | 887% slower
-Aura v2 - first route | 986 | 0.0004391784 | +0.0003988241 | 988% slower
 
 Dependencies
 ---
@@ -577,6 +513,54 @@ License
 
 Appendix
 ---
+
+- <a name="performance"></a>Performance
+
+  ### Worst-case matching
+
+  This benchmark matches the last route and unknown route. It generates a
+  randomly prefixed and suffixed route in an attempt to thwart any optimization.
+  1,000 routes each with 8 arguments.
+
+  This benchmark consists of 14 tests. Each test is executed 1,000 times, the
+  results pruned, and then averaged. Values that fall outside of 3 standard
+  deviations of the mean are discarded.
+
+  Test Name | Results | Time | + Interval | Change
+  --------- | ------- | ---- | ---------- | ------
+  Phossa PPR - unknown route (1000 routes) | 998 | 0.0000724551 | +0.0000000000 | baseline
+  Phossa PPR - last route (1000 routes) | 993 | 0.0000925307 | +0.0000200755 | 28% slower
+  Symfony2 Dumped - unknown route (1000 routes) | 998 | 0.0004353616 | +0.0003629065 | 501% slower
+  Phroute - last route (1000 routes) | 999 | 0.0006205601 | +0.0005481050 | 756% slower
+  Phossa - unknown route (1000 routes) | 998 | 0.0006903790 | +0.0006179239 | 853% slower
+  FastRoute - unknown route (1000 routes) | 1,000 | 0.0006911943 | +0.0006187392 | 854% slower
+  FastRoute - last route (1000 routes) | 999 | 0.0006962751 | +0.0006238200 | 861% slower
+  Phroute - unknown route (1000 routes) | 998 | 0.0007134676 | +0.0006410125 | 885% slower
+  Symfony2 Dumped - last route (1000 routes) | 993 | 0.0008066097 | +0.0007341545 | 1013% slower
+  Phossa - last route (1000 routes) | 998 | 0.0009104498 | +0.0008379947 | 1157% slower
+  Symfony2 - unknown route (1000 routes) | 989 | 0.0023998006 | +0.0023273455 | 3212% slower
+  Symfony2 - last route (1000 routes) | 999 | 0.0025880890 | +0.0025156339 | 3472% slower
+  Aura v2 - last route (1000 routes) | 981 | 0.0966411463 | +0.0965686912 | 133281% slower
+  Aura v2 - unknown route (1000 routes) | 992 | 0.1070026719 | +0.1069302168 | 147581% slower
+
+  ### First route matching
+
+  This benchmark tests how quickly each router can match the first route. 1,000
+  routes each with 8 arguments.
+
+  This benchmark consists of 7 tests. Each test is executed 1,000 times, the
+  results pruned, and then averaged. Values that fall outside of 3 standard
+  deviations of the mean are discarded.
+
+  Test Name | Results | Time | + Interval | Change
+  --------- | ------- | ---- | ---------- | ------
+  FastRoute - first route | 999 | 0.0000403543 | +0.0000000000 | baseline
+  Phroute - first route | 998 | 0.0000405911 | +0.0000002368 | 1% slower
+  Symfony2 Dumped - first route | 999 | 0.0000590617 | +0.0000187074 | 46% slower
+  Phossa PPR - first route | 977 | 0.0000678727 | +0.0000275184 | 68% slower
+  Phossa - first route | 999 | 0.0000898475 | +0.0000494932 | 123% slower
+  Symfony2 - first route | 998 | 0.0003983802 | +0.0003580259 | 887% slower
+  Aura v2 - first route | 986 | 0.0004391784 | +0.0003988241 | 988% slower
 
 - **URL rewrite**
 
@@ -632,3 +616,42 @@ Appendix
         }
     }
     ```
+
+- <a name="issue"></a>Routing issues
+
+  Base on the request informations, such as request device, source ip, request
+  method etc., service provider may direct request to different hosts, servers,
+  app modules or handlers.
+
+  - *Network level routing*
+
+    Common case, such as routing based on request's source ip, routes the
+    request to a *NEAREST* server, this is common in content distribution
+    network (CDN), and is done at network level.
+
+  - *Web server routing*
+
+    For performance reason, some of the simple routing can be done at web
+    server level, such as using apache or ngix configs to do simple routing.
+
+    For example, if your server goes down for maintenance, you may replace
+    the `.htaccess` file as follows,
+
+    ```
+    DirectorySlash Off
+    Options -MultiViews
+    DirectoryIndex maintenance.php
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-l
+    RewriteRule ^ maintenance.php [QSA,L]
+    ```
+
+  - *App level routing*
+
+    It solves much more complicated issues, and much more flexible.
+
+    Usually, routing is done at a single point `index.php`. All the requests
+    are configured to be handled by this script first and routed to different
+    routines.

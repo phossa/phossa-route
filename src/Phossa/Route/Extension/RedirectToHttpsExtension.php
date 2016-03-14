@@ -15,6 +15,7 @@
 
 namespace Phossa\Route\Extension;
 
+use Phossa\Route\Status;
 use Phossa\Route\Dispatcher;
 use Phossa\Route\Context\ResultInterface;
 
@@ -70,7 +71,7 @@ class RedirectToHttpsExtension implements ExtensionInterface
         ResultInterface $result
     )/*# : bool */ {
         if (!$result->getRequest()->getServerInfo('https') && $stage) {
-            $result->setStatus(ResultInterface::MOVED_PERMANENTLY)
+            $result->setStatus(Status::MOVED_PERMANENTLY)
                    ->setParameter(
                         ResultInterface::REDIRECT_URL,
                         $this->url ?: $this->getUrl(
@@ -81,7 +82,7 @@ class RedirectToHttpsExtension implements ExtensionInterface
                             "Location: ".
                             $result->getParameter(ResultInterface::REDIRECT_URL),
                             true,
-                            ResultInterface::MOVED_PERMANENTLY
+                            Status::MOVED_PERMANENTLY
                         );
                         die();
                    });

@@ -15,6 +15,7 @@
 
 namespace Phossa\Route\Context;
 
+use Phossa\Route\Status;
 use Phossa\Route\RouteInterface;
 
 /**
@@ -34,7 +35,7 @@ class Result implements ResultInterface
      * @var    int
      * @access protected
      */
-    protected $status = self::NOT_FOUND;
+    protected $status = Status::NOT_FOUND;
 
     /**
      * parameters

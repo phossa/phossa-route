@@ -1,6 +1,7 @@
 <?php
 namespace Phossa\Route\Collector;
 
+use Phossa\Route\Status;
 use Phossa\Route\Context\Result;
 use Phossa\Route\Context\Request;
 
@@ -89,7 +90,7 @@ class CollectorQPRTest extends \PHPUnit_Framework_TestCase
             'GET', '/path/?r=controller-action-id-name-nick'
         ));
         $this->assertFalse($this->object->matchRoute($result));
-        $this->assertEquals(Result::BAD_REQUEST, $result->getStatus());
+        $this->assertEquals(Status::BAD_REQUEST, $result->getStatus());
     }
 
 

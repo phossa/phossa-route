@@ -15,6 +15,7 @@
 
 namespace Phossa\Route\Collector;
 
+use Phossa\Route\Status;
 use Phossa\Route\RouteInterface;
 use Phossa\Route\Message\Message;
 use Phossa\Route\Context\ResultInterface;
@@ -63,13 +64,13 @@ class CollectorPPR extends CollectorAbstract
         $path = trim($result->getRequest()->getServerInfo('path_info'), ' /');
         if (count($parts = explode('/', $path)) > 1) {
             // set status
-            $result->setStatus(ResultInterface::OK);
+            $result->setStatus(Status::OK);
 
             // parameters
             $controller = array_shift($parts);
             $action = array_shift($parts);
             if (count($parts) % 2) {
-                $result->setStatus(ResultInterface::BAD_REQUEST);
+                $result->setStatus(Status::BAD_REQUEST);
                 return false;
             }
 
@@ -86,7 +87,7 @@ class CollectorPPR extends CollectorAbstract
 
             return true;
         }
-        $result->setStatus(ResultInterface::BAD_REQUEST);
+        $result->setStatus(Status::BAD_REQUEST);
         return false;
     }
 }

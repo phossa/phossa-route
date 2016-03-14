@@ -15,8 +15,10 @@
 
 namespace Phossa\Route\Collector;
 
+use Phossa\Route\Status;
 use Phossa\Route\RouteInterface;
 use Phossa\Route\Message\Message;
+use Phossa\Route\Regex\ParserGcb;
 use Phossa\Route\Regex\ParserInterface;
 use Phossa\Route\Context\ResultInterface;
 use Phossa\Route\Exception\LogicException;
@@ -56,9 +58,9 @@ class Collector extends CollectorAbstract
      * @access public
      * @api
      */
-    public function __construct(ParserInterface $parser)
+    public function __construct(ParserInterface $parser = null)
     {
-        $this->parser = $parser;
+        $this->parser = $parser ?: new ParserGcb();
     }
 
     /**
@@ -140,7 +142,7 @@ class Collector extends CollectorAbstract
 
         // matched but method not allowed
         if (!isset($this->routes[$routeKey][$method])) {
-            $result->setStatus(ResultInterface::METHOD_NOT_ALLOWED);
+            $result->setStatus(Status::METHOD_NOT_ALLOWED);
             return false;
         }
 
@@ -156,7 +158,7 @@ class Collector extends CollectorAbstract
                 '~'.$pattern.'~x',
                 $request->getServerInfo($field)
             )) {
-                $result->setStatus(ResultInterface::PRECONDITION_FAILED);
+                $result->setStatus(Status::PRECONDITION_FAILED);
                 return false;
             }
         }
@@ -165,7 +167,7 @@ class Collector extends CollectorAbstract
         $result->setParameter(array_replace($route->getDefault(), $matches));
 
         // set status & handler
-        $result->setStatus(ResultInterface::OK);
+        $result->setStatus(Status::OK);
 
         return true;
     }

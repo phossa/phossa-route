@@ -2,6 +2,7 @@
 namespace Phossa\Route\Collector;
 
 use Phossa\Route\Route;
+use Phossa\Route\Status;
 use Phossa\Route\Regex\ParserStd;
 use Phossa\Route\Regex\ParserGcb;
 use Phossa\Route\Context\Result;
@@ -120,7 +121,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         $this->object->addRoute(new Route('GET,POST', '/user[/{name:c}]'));
         $result = new Result(new Request('GET', '/user/phossa'));
         if ($this->invokeMethod('match', [$result])) {
-            $this->assertEquals(Result::OK, $result->getStatus());
+            $this->assertEquals(Status::OK, $result->getStatus());
             $this->assertEquals(['name' => 'phossa'], $result->getParameter());
         } else {
             throw new \Exception('bad');
@@ -138,7 +139,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         $this->object->addRoute(new Route('GET,POST', '/user[/{name:c}]'));
         $result = new Result(new Request('GET', '/user/phossa'));
         if ($this->invokeMethod('match', [$result])) {
-            $this->assertEquals(Result::OK, $result->getStatus());
+            $this->assertEquals(Status::OK, $result->getStatus());
             $this->assertEquals(['name' => 'phossa'], $result->getParameter());
         } else {
             throw new \Exception('bad');
@@ -162,7 +163,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res1 = new Result(new Request('GET', '/blog/'));
         if ($this->invokeMethod('match', [$res1])) {
-            $this->assertEquals(Result::OK, $res1->getStatus());
+            $this->assertEquals(Status::OK, $res1->getStatus());
             $this->assertEquals(['section' => 'list'], $res1->getParameter());
         } else {
             throw new \Exception('bad');
@@ -170,7 +171,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res2 = new Result(new Request('GET', '/blog/edit/'));
         if ($this->invokeMethod('match', [$res2])) {
-            $this->assertEquals(Result::OK, $res2->getStatus());
+            $this->assertEquals(Status::OK, $res2->getStatus());
             $this->assertEquals(['section' => 'edit'], $res2->getParameter());
         } else {
             throw new \Exception('bad');
@@ -178,7 +179,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res3 = new Result(new Request('GET', '/blog/edit/2016'));
         if ($this->invokeMethod('match', [$res3])) {
-            $this->assertEquals(Result::OK, $res3->getStatus());
+            $this->assertEquals(Status::OK, $res3->getStatus());
             $this->assertEquals(
                 ['section' => 'edit', 'year' => '2016'],
                 $res3->getParameter()
@@ -189,7 +190,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res4 = new Result(new Request('GET', '/blog/2016'));
         if ($this->invokeMethod('match', [$res4])) {
-            $this->assertEquals(Result::OK, $res4->getStatus());
+            $this->assertEquals(Status::OK, $res4->getStatus());
             $this->assertEquals(
                 ['section' => 'list', 'year' => '2016'],
                 $res4->getParameter()
@@ -200,7 +201,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res5 = new Result(new Request('GET', '/blog/add/2016/04'));
         if ($this->invokeMethod('match', [$res5])) {
-            $this->assertEquals(Result::OK, $res5->getStatus());
+            $this->assertEquals(Status::OK, $res5->getStatus());
             $this->assertEquals(
                 ['section' => 'add', 'year' => '2016', 'month' => '04'],
                 $res5->getParameter()
@@ -228,7 +229,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res1 = new Result(new Request('GET', '/blog/'));
         if ($this->invokeMethod('match', [$res1])) {
-            $this->assertEquals(Result::OK, $res1->getStatus());
+            $this->assertEquals(Status::OK, $res1->getStatus());
             $this->assertEquals(['section' => 'list'], $res1->getParameter());
         } else {
             throw new \Exception('bad');
@@ -236,7 +237,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res2 = new Result(new Request('GET', '/blog/edit/'));
         if ($this->invokeMethod('match', [$res2])) {
-            $this->assertEquals(Result::OK, $res2->getStatus());
+            $this->assertEquals(Status::OK, $res2->getStatus());
             $this->assertEquals(['section' => 'edit'], $res2->getParameter());
         } else {
             throw new \Exception('bad');
@@ -244,7 +245,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res3 = new Result(new Request('GET', '/blog/edit/2016'));
         if ($this->invokeMethod('match', [$res3])) {
-            $this->assertEquals(Result::OK, $res3->getStatus());
+            $this->assertEquals(Status::OK, $res3->getStatus());
             $this->assertEquals(
                 ['section' => 'edit', 'year' => '2016'],
                 $res3->getParameter()
@@ -255,7 +256,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res4 = new Result(new Request('GET', '/blog/2016'));
         if ($this->invokeMethod('match', [$res4])) {
-            $this->assertEquals(Result::OK, $res4->getStatus());
+            $this->assertEquals(Status::OK, $res4->getStatus());
             $this->assertEquals(
                 ['section' => 'list', 'year' => '2016'],
                 $res4->getParameter()
@@ -266,7 +267,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res5 = new Result(new Request('GET', '/blog/add/2016/04'));
         if ($this->invokeMethod('match', [$res5])) {
-            $this->assertEquals(Result::OK, $res5->getStatus());
+            $this->assertEquals(Status::OK, $res5->getStatus());
             $this->assertEquals(
                 ['section' => 'add', 'year' => '2016', 'month' => '04'],
                 $res5->getParameter()
@@ -328,7 +329,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res1 = new Result(new Request('GET', '/blog7/'));
         if ($this->invokeMethod('match', [$res1])) {
-            $this->assertEquals(Result::OK, $res1->getStatus());
+            $this->assertEquals(Status::OK, $res1->getStatus());
             $this->assertEquals(['section' => 'list'], $res1->getParameter());
         } else {
             throw new \Exception('bad');
@@ -388,7 +389,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         $res1 = new Result(new Request('GET', '/blog7/'));
         if ($this->invokeMethod('match', [$res1])) {
-            $this->assertEquals(Result::OK, $res1->getStatus());
+            $this->assertEquals(Status::OK, $res1->getStatus());
             $this->assertEquals(['section' => 'list'], $res1->getParameter());
         } else {
             throw new \Exception('bad');
@@ -405,7 +406,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         $this->object->addRoute(new Route('GET,POST', '/user[/{name:c}]'));
         $result = new Result(new Request('HEAD', '/user/phossa'));
         if (!$this->invokeMethod('match', [$result])) {
-            $this->assertEquals(Result::METHOD_NOT_ALLOWED, $result->getStatus());
+            $this->assertEquals(Status::METHOD_NOT_ALLOWED, $result->getStatus());
         } else {
             throw new \Exception('bad');
         }
@@ -422,7 +423,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         $this->object->addRoute(new Route('GET,POST', '/user[/{name:c}]'));
         $result = new Result(new Request('HEAD', '/user/phossa'));
         if (!$this->invokeMethod('match', [$result])) {
-            $this->assertEquals(Result::METHOD_NOT_ALLOWED, $result->getStatus());
+            $this->assertEquals(Status::METHOD_NOT_ALLOWED, $result->getStatus());
         } else {
             throw new \Exception('bad');
         }
@@ -443,7 +444,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         // failed
         $res1 = new Result(new Request('GET', '/user/phossa'));
         if (!$this->invokeMethod('match', [$res1])) {
-            $this->assertEquals(Result::PRECONDITION_FAILED,
+            $this->assertEquals(Status::PRECONDITION_FAILED,
                 $res1->getStatus());
         } else {
             throw new \Exception('bad');
@@ -453,7 +454,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         $_SERVER['SERVER_NAME'] = 'm.phossa.com';
         $res2 = new Result(new Request('GET', '/user/phossa'));
         if ($this->invokeMethod('match', [$res2])) {
-            $this->assertEquals(Result::OK, $res2->getStatus());
+            $this->assertEquals(Status::OK, $res2->getStatus());
         } else {
             throw new \Exception('bad');
         }
@@ -477,7 +478,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         // failed
         $res1 = new Result(new Request('GET', '/user/phossa'));
         if (!$this->invokeMethod('match', [$res1])) {
-            $this->assertEquals(Result::PRECONDITION_FAILED,
+            $this->assertEquals(Status::PRECONDITION_FAILED,
                 $res1->getStatus());
         } else {
             throw new \Exception('bad');
@@ -487,7 +488,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         $_SERVER['SERVER_NAME'] = 'm.phossa.com';
         $res2 = new Result(new Request('GET', '/user/phossa'));
         if ($this->invokeMethod('match', [$res2])) {
-            $this->assertEquals(Result::OK, $res2->getStatus());
+            $this->assertEquals(Status::OK, $res2->getStatus());
         } else {
             throw new \Exception('bad');
         }
@@ -503,7 +504,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         $this->object->addRoute(new Route('GET,POST', '/user[/{name:c}]'));
         $result = new Result(new Request('GET', '/user1/phossa'));
         if (!$this->invokeMethod('match', [$result])) {
-            $this->assertEquals(Result::NOT_FOUND, $result->getStatus());
+            $this->assertEquals(Status::NOT_FOUND, $result->getStatus());
         } else {
             throw new \Exception('bad');
         }
@@ -520,7 +521,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
         $this->object->addRoute(new Route('GET,POST', '/user[/{name:c}]'));
         $result = new Result(new Request('GET', '/user1/phossa'));
         if (!$this->invokeMethod('match', [$result])) {
-            $this->assertEquals(Result::NOT_FOUND, $result->getStatus());
+            $this->assertEquals(Status::NOT_FOUND, $result->getStatus());
         } else {
             throw new \Exception('bad');
         }

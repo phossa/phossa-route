@@ -32,7 +32,7 @@ trait HandlerAwareTrait
     /**
      * Different handler for different status.
      *
-     * usually only the ResultInterface::OK status handler is set.
+     * usually only the Status::OK status handler is set.
      *
      * @var    array
      * @access protected

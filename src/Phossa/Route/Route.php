@@ -81,7 +81,7 @@ class Route implements RouteInterface, Handler\HandlerAwareInterface, Extension\
      *
      * @param  string $httpMethod 'GET|POST' allowed for this route.
      * @param  string $pathPattern matching pattern for $_SERVER['PATH_INFO']
-     * @param  callable|array $handler for ResultInterface::OK status
+     * @param  callable|array $handler for Status::OK status
      * @param  array $defaultValues default value for placeholders
      * @access public
      * @api
@@ -94,7 +94,7 @@ class Route implements RouteInterface, Handler\HandlerAwareInterface, Extension\
     ) {
         $this->setMethods($httpMethod)
              ->setPattern($pathPattern)
-             ->addHandler(ResultInterface::OK, $handler)
+             ->addHandler(Status::OK, $handler)
              ->setDefault($defaultValues);
     }
 

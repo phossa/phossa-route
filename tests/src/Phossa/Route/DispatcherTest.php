@@ -2,6 +2,7 @@
 namespace Phossa\Route;
 
 use Phossa\Route\Route;
+use Phossa\Route\Status;
 use Phossa\Route\Collector;
 use Phossa\Route\Context\Result;
 use Phossa\Route\Context\Request;
@@ -135,7 +136,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $this->expectOutputString("200 User 'phossa'");
         $this->object->dispatchUrl('GET', '/user/phossa');
         $res1 = $this->getPrivateProperty('result');
-        $this->assertEquals(Result::OK, $res1->getStatus());
+        $this->assertEquals(Status::OK, $res1->getStatus());
     }
 
     /**

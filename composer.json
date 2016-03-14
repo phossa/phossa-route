@@ -2,7 +2,7 @@
     "name": "phossa/phossa-route",
     "license": "MIT",
     "type": "library",
-    "description": "The sql query builder package of Phossa framework",
+    "description": "A fast and full-fledged routing libraray for PHP",
     "keywords": ["phossa"],
     "homepage": "https://github.com/phossa/phossa-route",
     "authors": [

@@ -13,6 +13,7 @@ if (file_exists(dirname($basedir).'/autoload.php')) {
 
 $loader->set('', dirname(__DIR__) . '/src/');
 
+/*
 // Command that starts the built-in web server
 $command = sprintf(
     'php -S %s:%d -t %s >/dev/null 2>&1 & echo $!',
@@ -42,3 +43,4 @@ register_shutdown_function(function() use ($pid) {
 
 // give server time to startup
 sleep(1);
+*/

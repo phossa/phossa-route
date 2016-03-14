@@ -1,4 +1,4 @@
-# phossa-route
+# phossa-route - fast & full-fledged routing library
 
 Introduction
 ---
@@ -98,22 +98,36 @@ Getting started
 Routing issues
 ---
 
-Base on request informations, such as request device, source ip, request method
-etc., service provider may direct request to different hosts, app servers, app
-modules or handlers.
+Base on the request informations, such as request device, source ip, request
+method etc., service provider may direct request to different hosts, servers,
+app modules or handlers.
 
 - **Diffrent routing strategies**
 
   - *Network level routing*
 
-    Common case like routing base on request's source ip, route the request to
-    a *NEAREST* server, this is common in content distribution network (CDN),
-    and is done at network level.
+    Common case, such as routing based on request's source ip, routes the
+    request to a *NEAREST* server, this is common in content distribution
+    network (CDN), and is done at network level.
 
   - *Web server routing*
 
     For performance reason, some of the simple routing can be done at web
     server level, such as using apache or ngix configs to do simple routing.
+
+    For example, if your server goes down for maintenance, you may replace
+    the `.htaccess` file as follows,
+
+    ```
+    DirectorySlash Off
+    Options -MultiViews
+    DirectoryIndex maintenance.php
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-l
+    RewriteRule ^ maintenance.php [QSA,L]
+    ```
 
   - *App server routing*
 
@@ -201,14 +215,20 @@ There are couple of URL based routing schemes supported in this library.
 
 - **Regular Expression Routing (RER)**
 
-  This sheme is pretty popular.
+  Regular expression based routing. Pattern
+
+  ```
+  $pattern = '/user/{method}[/{id:\d+}[/{name}]]';
+  ```
+
+  To match the following urls,
 
   ```
   // user id provided
   http://servername/path/user/list/20162
 
   // user id & name
-  http://servername/path/user/list/phossa/20162
+  http://servername/path/user/list/20162/phossa
   ```
 
 Usage
@@ -218,8 +238,6 @@ Usage
 
 Features
 ---
-
-- Support internal routing
 
 - Parameters & placeholders
 
@@ -231,35 +249,102 @@ Features
 
 Public APIs
 --
-- `RouteCollector` APIs
+- `Phossa\Route\RouteCollector` APIs
 
-  - `addRoute(string $name, string|callable $pattern, string|callable $methodOrCallable = 'GET'): this`
+  - `__construt(RouteInterpolator, HandlerResolver $handlerResolver = null)`
 
-    Add one route with `$name` to the collector.
+  - `addRoute(string|callable $pattern, string|callable $methodOrCallable = 'GET,HEAD', array $defauls = []): this`
+
+    Add one route to the collector.
 
     If `$pattern` is a string, it will be interpreted as a pattern to match
-    against `PATH_INFO`. If it is a callable, it will be executed with the
-    `Request` object as argument.
+    against `$_SERVER['PATH_INFO']`. If it is a callable, the signature is
+    `function(Request|string $requestOrUri): bool {}`.
 
     The last parameter specifies the HTTP method in upper case, either 'GET',
-    'POST' or 'GET|POST' etc. If it is a callable, then it will be executed
-    with the `Request` object as argument.
+    'POST' or 'GET,POST' etc. If it is a callable, then it will be executed
+    and the signature is `function(Request $request): bool {}`.
 
-- `Dispatcher` APIs
+  - `loadData(array|string $fileOrArray): array`
 
-  - `__construt(array|RouteCollector $routeCollectors = [])`
+    Load the routes data.
 
-    Instantiation of the dispatcher.
+  - `getData(): array`
 
-  - `dispatch(Request $request, RouteCollector $routeCollector = null): this`
+    Get the routes data.
 
-    Dispatch base on the info from `$request`. If `$routeCollector` parameter
-    is provided, use this route collector as the first collector.
+- `Phossa\Route\Dispatcher` APIs
 
-  - `addRouteCollector(RouteCollector $routeCollector): this`
+  - `__construt(array $routeData)`
 
-    Add route collector to the collector pool. Order of addition matters. The
-    first collector added will be checked first during the dispatching.
+    Instantiation of the dispatcher with one `RouteCollector`.
+
+    ```php
+    $dispatcher = new Dispatcher(
+        (new RouteCollector)
+            ->addRoute('user', '/user')
+            ->addRoute('post', '/posts/[id:\d+]')
+            ->getData()
+    );
+    ```
+
+  - `match(string|Request $uriOriRequest, string $httpMethod = 'GET,HEAD'): array`
+
+    Match base on request object or given uri. Returns result array
+
+  - `dispatch(string|Request $uriOrRequest, string $httpMethod = 'GET,HEAD'): static`
+
+    Match and dispatch the result array to corresponding handler.
+
+Performance
+---
+
+#### Worst-case matching
+
+This benchmark matches the last route and unknown route. It generates a
+randomly prefixed and suffixed route in an attempt to thwart any optimization.
+1,000 routes each with 8 arguments.
+
+This benchmark consists of 14 tests. Each test is executed 1,000 times, the
+results pruned, and then averaged. Values that fall outside of 3 standard
+deviations of the mean are discarded.
+
+Test Name | Results | Time | + Interval | Change
+--------- | ------- | ---- | ---------- | ------
+Phossa PPR - unknown route (1000 routes) | 998 | 0.0000724551 | +0.0000000000 | baseline
+Phossa PPR - last route (1000 routes) | 993 | 0.0000925307 | +0.0000200755 | 28% slower
+Symfony2 Dumped - unknown route (1000 routes) | 998 | 0.0004353616 | +0.0003629065 | 501% slower
+Phroute - last route (1000 routes) | 999 | 0.0006205601 | +0.0005481050 | 756% slower
+Phossa - unknown route (1000 routes) | 998 | 0.0006903790 | +0.0006179239 | 853% slower
+FastRoute - unknown route (1000 routes) | 1,000 | 0.0006911943 | +0.0006187392 | 854% slower
+FastRoute - last route (1000 routes) | 999 | 0.0006962751 | +0.0006238200 | 861% slower
+Phroute - unknown route (1000 routes) | 998 | 0.0007134676 | +0.0006410125 | 885% slower
+Symfony2 Dumped - last route (1000 routes) | 993 | 0.0008066097 | +0.0007341545 | 1013% slower
+Phossa - last route (1000 routes) | 998 | 0.0009104498 | +0.0008379947 | 1157% slower
+Symfony2 - unknown route (1000 routes) | 989 | 0.0023998006 | +0.0023273455 | 3212% slower
+Symfony2 - last route (1000 routes) | 999 | 0.0025880890 | +0.0025156339 | 3472% slower
+Aura v2 - last route (1000 routes) | 981 | 0.0966411463 | +0.0965686912 | 133281% slower
+Aura v2 - unknown route (1000 routes) | 992 | 0.1070026719 | +0.1069302168 | 147581% slower
+
+
+#### First route matching
+
+This benchmark tests how quickly each router can match the first route. 1,000
+routes each with 8 arguments.
+
+This benchmark consists of 7 tests. Each test is executed 1,000 times, the
+results pruned, and then averaged. Values that fall outside of 3 standard
+deviations of the mean are discarded.
+
+Test Name | Results | Time | + Interval | Change
+--------- | ------- | ---- | ---------- | ------
+FastRoute - first route | 999 | 0.0000403543 | +0.0000000000 | baseline
+Phroute - first route | 998 | 0.0000405911 | +0.0000002368 | 1% slower
+Symfony2 Dumped - first route | 999 | 0.0000590617 | +0.0000187074 | 46% slower
+Phossa PPR - first route | 977 | 0.0000678727 | +0.0000275184 | 68% slower
+Phossa - first route | 999 | 0.0000898475 | +0.0000494932 | 123% slower
+Symfony2 - first route | 998 | 0.0003983802 | +0.0003580259 | 887% slower
+Aura v2 - first route | 986 | 0.0004391784 | +0.0003988241 | 988% slower
 
 Dependencies
 ---

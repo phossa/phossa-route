@@ -33,9 +33,24 @@ class Message extends MessageAbstract
      */
 
     /**
-     * Wrong log level name
+     * Route "%s" duplicated for method "%s"
      */
-    const WRONG_LOG_LEVEL       = 1510301240;
+    const ROUTE_DUPLICATED      = 1603111803;
+
+    /**
+     * No route should be added for "%s"
+     */
+    const ROUTE_DISALLOWED      = 1603111804;
+
+    /**
+     * Please provide stage name
+     */
+    const STAGE_REQUIRED        = 1603111805;
+
+    /**
+     * Pattern "%s" is malformed
+     */
+    const PATTERN_MALFORMED     = 1603111806;
 
     /**#@-*/
 
@@ -43,5 +58,9 @@ class Message extends MessageAbstract
      * {@inheritdoc}
      */
     protected static $messages = [
+        self::ROUTE_DUPLICATED  => 'Route "%s" duplicated for method "%s"',
+        self::ROUTE_DISALLOWED  => 'No route should be added for "%s"',
+        self::STAGE_REQUIRED    => 'Please provide stage name',
+        self::PATTERN_MALFORMED => 'Pattern "%s" is malformed',
     ];
 }

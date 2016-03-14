@@ -41,6 +41,7 @@ trait CollectorAwareTrait
     public function addCollector(CollectorInterface $collector)
     {
         $this->collectors[] = $collector;
+        return $this;
     }
 
     /**

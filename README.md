@@ -94,7 +94,8 @@ Getting started
 
   A route pattern syntax is used where `{foo}` specifies a placeholder or
   parameter with name `foo` and default pattern `[^/]++`. In order to match
-  more specific types, you may specify a custom regex pattern `{foo:[0-9]+}`.
+  more specific types, you may specify a custom regex pattern like
+  `{foo:[0-9]+}`.
 
   Predefined shortcuts for placeholder patterns as follows,
 
@@ -117,30 +118,30 @@ Getting started
 
   where optional segments can be **nested**. Unlike other libraries, optional
   segments are not limited to the end of the pattern, as long as it is a valid
-  pattern.
+  pattern like the `[/{action:xd}]` (not started with a digit) in the example.
 
 - **Syntax issues**
 
-  - Use of `[]` outside placeholders
+  - Use of `[]` outside placeholders is not allowed
 
     `[]` can not be used outside placeholders, *IF YOU DO NEED* to use them
     as part of the pattern, please include them inside a placeholder.
 
-  - Use of `()` inside placeholders
+  - Use of `()` inside placeholders is not allowed
 
     Capturing groups `()` can not be used inside placeholders. For example
-    `{user:(root|phossa)}` is not valid. Instead you can use either use
+    `{user:(root|phossa)}` is not valid. Instead, you can use either use
     `{user:root|phossa}` or `{user:(?:root|phossa)}`.
 
 <a name="routes"></a>Defining routes
 ---
 
-- Defining routes with `collector`
+- **Defining routes with `collector`**
 
   Since multiple collectors (route collections) are supported in the dispatcher,
-  routes are defined with collectors.
+  routes are defined with collectors, but not with the dispatcher.
 
-- Defining routes
+- **Defining routes**
 
   ```php
   // define a GET route
@@ -155,7 +156,27 @@ Getting started
 
   `addGet()` and `addPost()` are all wrappers of `addRoute(RouteInterface)`.
 
-- Route handler
+- **<a name="collector"></a>Multiple routing collections**
+
+  Routes can be grouped into different collections by using multiple collectors.
+
+  ```php
+  // '/usr' related
+  $collector_user = (new Route\Collector\Collector())
+      ->addGet('/user/list/{id:d}', 'handler1')
+      ->addGet('/usr/view/{id:d}', 'handler2')
+      ->addPost('/usr/new', 'handler3');
+
+  // '/blog' related
+  $collector_blog = (new Route\Collector\Collector())
+      ->addGet('/blog/list/{user_id:d}', 'handler4')
+      ->addGet('/blog/read/{blog_id:d}', 'handler5');
+
+  $dispatcher->addCollector($collector_user)
+             ->addCollector($collector_blog);
+  ```
+
+- **Route handler**
 
   Route handler can be a closure, a callable or even a pseudo callable like
   `['className', 'method']` which will be resolved by the dispatcher's resolver.

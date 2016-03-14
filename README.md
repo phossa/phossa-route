@@ -22,7 +22,7 @@ Why another routing library ?
   strategies.
 
 - Support different [regular expression routing algorithms](#algorithm)
-  including the [fastRoute algorithm](http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html)
+  including the [fastRoute algorithm](#fastroute)
 
 - [Concise route syntax](#syntax). Route parameters and optional route segments.
 
@@ -311,7 +311,7 @@ Getting started
 ---
 
 There are a couple of URL based routing strategies supported by default in this
-library. Different strategies can be combined together in one dispatcher.
+library. Different strategies can be combined together into one dispatcher.
 
 - **Query Parameter Routing (QPR)**
 
@@ -322,7 +322,9 @@ library. Different strategies can be combined together in one dispatcher.
   http://servername/path/?r=controller-action-id-1-name-nick
   ```
 
-- **Parameter Pairs Routing (PPR)**
+  This strategy is implemented in `Phossa\Route\Collector\CollectorQPR` class.
+
+- <a name="ppr"></a>**Parameter Pairs Routing (PPR)**
 
   Using parameter and value pairs like the following
 
@@ -345,6 +347,8 @@ library. Different strategies can be combined together in one dispatcher.
   http://servername/path/controller-action-id-1-name-nick
   ```
 
+  This strategy is implemented in `Phossa\Route\Collector\CollectorPPR` class.
+
 - **Regular Expression Routing (RER)**
 
   Regular expression based routing. Pattern
@@ -363,12 +367,12 @@ library. Different strategies can be combined together in one dispatcher.
   http://servername/path/user/list/20162/phossa
   ```
 
-  **RER** is the routing strategy of `Phossa\Route\Collector\Collector` class.
+  **RER** is implemented `Phossa\Route\Collector\Collector` class.
 
 <a name="algorithm"></a>Regex matching algorithms
 ---
 
-- **FastRoute algorithm**
+- <a name="fastroute"></a>**FastRoute algorithm**
 
   This *Group Count Based algorithm* is implemented in
   `Phossa\Route\Regex\ParserGcb` class and explained in  detail in this
@@ -376,7 +380,7 @@ library. Different strategies can be combined together in one dispatcher.
 
   **phossa-route** uses this algorithm by default.
 
--- **Standard algorithm**
+- **Standard algorithm**
 
   This algorithm is developed by phossa-route and a little bit slower than the
   fastRoute GCB algorithm. It is implemented in `Phossa\Route\Regex\ParserStd`
@@ -387,19 +391,17 @@ library. Different strategies can be combined together in one dispatcher.
   - It does **NOT** matter that much as you may think.
 
     If you are using routing library in your application, different algorithms
-    may differes only 0.1 - 0.2ms which is meaningless for a big application.
+    may differ only 0.1 - 0.2ms which is meaningless for a big application.
 
   - If you **DO** care about routing speed
 
-    Use different routing strategy like *Parameter Pairs Routing (PPR)* which
-    is much [faster](#performance) than the regex based routing.
+    Use different routing strategy like [*Parameter Pairs Routing (PPR)*](#ppr)
+    which is [much faster](#performance) than the regex based routing. Also by
+    carefully design your routes, you may achieve better results even if you
+    are using a *slower* algorithm.
 
-    Also by carefully design your routes, you may achieve better results even
-    if you are using a slower algorithm.
-
-  - Try [network routing or server routing](#issue) if you just can NOT help
-    it.
-
+  - Try [network routing or server routing](#issue) if you just **CAN NOT HELP
+    IT**.
 
 - **App routing & utilities**
 
@@ -431,22 +433,6 @@ library. Different strategies can be combined together in one dispatcher.
 
       Some URLs can be configured to execute some routines, such as
       authentication routine, before handling control over to the handler.
-
-Usage
----
-
-- **Simple usage**
-
-Features
----
-
-- Parameters & placeholders
-
-- In addition to URL, routing base on HTTP headers
-
-- Support PHP 5.4+
-
-- PHP7 ready for return type declarations and argument type declarations.
 
 Public APIs
 --
@@ -497,8 +483,6 @@ Public APIs
 
     Match and dispatch the result array to corresponding handler.
 
-
-
 Dependencies
 ---
 
@@ -514,53 +498,53 @@ License
 Appendix
 ---
 
-- <a name="performance"></a>Performance
+- <a name="performance"></a>**Performance**
 
-  ### Worst-case matching
+  - Worst-case matching
 
-  This benchmark matches the last route and unknown route. It generates a
-  randomly prefixed and suffixed route in an attempt to thwart any optimization.
-  1,000 routes each with 8 arguments.
+    This benchmark matches the last route and unknown route. It generates a
+    randomly prefixed and suffixed route in an attempt to thwart any optimization.
+    1,000 routes each with 8 arguments.
 
-  This benchmark consists of 14 tests. Each test is executed 1,000 times, the
-  results pruned, and then averaged. Values that fall outside of 3 standard
-  deviations of the mean are discarded.
+    This benchmark consists of 14 tests. Each test is executed 1,000 times, the
+    results pruned, and then averaged. Values that fall outside of 3 standard
+    deviations of the mean are discarded.
 
-  Test Name | Results | Time | + Interval | Change
-  --------- | ------- | ---- | ---------- | ------
-  Phossa PPR - unknown route (1000 routes) | 998 | 0.0000724551 | +0.0000000000 | baseline
-  Phossa PPR - last route (1000 routes) | 993 | 0.0000925307 | +0.0000200755 | 28% slower
-  Symfony2 Dumped - unknown route (1000 routes) | 998 | 0.0004353616 | +0.0003629065 | 501% slower
-  Phroute - last route (1000 routes) | 999 | 0.0006205601 | +0.0005481050 | 756% slower
-  Phossa - unknown route (1000 routes) | 998 | 0.0006903790 | +0.0006179239 | 853% slower
-  FastRoute - unknown route (1000 routes) | 1,000 | 0.0006911943 | +0.0006187392 | 854% slower
-  FastRoute - last route (1000 routes) | 999 | 0.0006962751 | +0.0006238200 | 861% slower
-  Phroute - unknown route (1000 routes) | 998 | 0.0007134676 | +0.0006410125 | 885% slower
-  Symfony2 Dumped - last route (1000 routes) | 993 | 0.0008066097 | +0.0007341545 | 1013% slower
-  Phossa - last route (1000 routes) | 998 | 0.0009104498 | +0.0008379947 | 1157% slower
-  Symfony2 - unknown route (1000 routes) | 989 | 0.0023998006 | +0.0023273455 | 3212% slower
-  Symfony2 - last route (1000 routes) | 999 | 0.0025880890 | +0.0025156339 | 3472% slower
-  Aura v2 - last route (1000 routes) | 981 | 0.0966411463 | +0.0965686912 | 133281% slower
-  Aura v2 - unknown route (1000 routes) | 992 | 0.1070026719 | +0.1069302168 | 147581% slower
+    Test Name | Results | Time | + Interval | Change
+    --------- | ------- | ---- | ---------- | ------
+    Phossa PPR - unknown route (1000 routes) | 998 | 0.0000724551 | +0.0000000000 | baseline
+    Phossa PPR - last route (1000 routes) | 993 | 0.0000925307 | +0.0000200755 | 28% slower
+    Symfony2 Dumped - unknown route (1000 routes) | 998 | 0.0004353616 | +0.0003629065 | 501% slower
+    Phroute - last route (1000 routes) | 999 | 0.0006205601 | +0.0005481050 | 756% slower
+    Phossa - unknown route (1000 routes) | 998 | 0.0006903790 | +0.0006179239 | 853% slower
+    FastRoute - unknown route (1000 routes) | 1,000 | 0.0006911943 | +0.0006187392 | 854% slower
+    FastRoute - last route (1000 routes) | 999 | 0.0006962751 | +0.0006238200 | 861% slower
+    Phroute - unknown route (1000 routes) | 998 | 0.0007134676 | +0.0006410125 | 885% slower
+    Symfony2 Dumped - last route (1000 routes) | 993 | 0.0008066097 | +0.0007341545 | 1013% slower
+    Phossa - last route (1000 routes) | 998 | 0.0009104498 | +0.0008379947 | 1157% slower
+    Symfony2 - unknown route (1000 routes) | 989 | 0.0023998006 | +0.0023273455 | 3212% slower
+    Symfony2 - last route (1000 routes) | 999 | 0.0025880890 | +0.0025156339 | 3472% slower
+    Aura v2 - last route (1000 routes) | 981 | 0.0966411463 | +0.0965686912 | 133281% slower
+    Aura v2 - unknown route (1000 routes) | 992 | 0.1070026719 | +0.1069302168 | 147581% slower
 
-  ### First route matching
+  - First route matching
 
-  This benchmark tests how quickly each router can match the first route. 1,000
-  routes each with 8 arguments.
+    This benchmark tests how quickly each router can match the first route. 1,000
+    routes each with 8 arguments.
 
-  This benchmark consists of 7 tests. Each test is executed 1,000 times, the
-  results pruned, and then averaged. Values that fall outside of 3 standard
-  deviations of the mean are discarded.
+    This benchmark consists of 7 tests. Each test is executed 1,000 times, the
+    results pruned, and then averaged. Values that fall outside of 3 standard
+    deviations of the mean are discarded.
 
-  Test Name | Results | Time | + Interval | Change
-  --------- | ------- | ---- | ---------- | ------
-  FastRoute - first route | 999 | 0.0000403543 | +0.0000000000 | baseline
-  Phroute - first route | 998 | 0.0000405911 | +0.0000002368 | 1% slower
-  Symfony2 Dumped - first route | 999 | 0.0000590617 | +0.0000187074 | 46% slower
-  Phossa PPR - first route | 977 | 0.0000678727 | +0.0000275184 | 68% slower
-  Phossa - first route | 999 | 0.0000898475 | +0.0000494932 | 123% slower
-  Symfony2 - first route | 998 | 0.0003983802 | +0.0003580259 | 887% slower
-  Aura v2 - first route | 986 | 0.0004391784 | +0.0003988241 | 988% slower
+    Test Name | Results | Time | + Interval | Change
+    --------- | ------- | ---- | ---------- | ------
+    FastRoute - first route | 999 | 0.0000403543 | +0.0000000000 | baseline
+    Phroute - first route | 998 | 0.0000405911 | +0.0000002368 | 1% slower
+    Symfony2 Dumped - first route | 999 | 0.0000590617 | +0.0000187074 | 46% slower
+    Phossa PPR - first route | 977 | 0.0000678727 | +0.0000275184 | 68% slower
+    Phossa - first route | 999 | 0.0000898475 | +0.0000494932 | 123% slower
+    Symfony2 - first route | 998 | 0.0003983802 | +0.0003580259 | 887% slower
+    Aura v2 - first route | 986 | 0.0004391784 | +0.0003988241 | 988% slower
 
 - **URL rewrite**
 
@@ -617,7 +601,7 @@ Appendix
     }
     ```
 
-- <a name="issue"></a>Routing issues
+- <a name="issue"></a>**Routing issues**
 
   Base on the request informations, such as request device, source ip, request
   method etc., service provider may direct request to different hosts, servers,

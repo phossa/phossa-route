@@ -13,7 +13,7 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Route;
+namespace Phossa\Route\Handler;
 
 use Phossa\Route\Exception\LogicException;
 

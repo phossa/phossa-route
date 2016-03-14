@@ -17,15 +17,17 @@ Why another routing library ?
 
 - [Super fast](#performance) ! If it matters to you.
 
-- Supports different [routing strategies](#strategy) and combinations of these
+- Support different [routing strategies](#strategy) and combinations of these
   strategies.
 
-- Supports different [regular expression routing algorithms](#algorithm)
+- Support different [regular expression routing algorithms](#algorithm)
   including the [fastRoute algorithm](http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html)
 
 - [Concise route syntax](#syntax). Route parameters and optional route segments.
 
 - [Multiple routing collections](#collector) allowed.
+
+- Different level of [default handlers](#default).
 
 - Fine control of routing process by [multiple level of extensions](#extension).
 
@@ -74,7 +76,7 @@ Getting started
                 ['id' => '1'])); // default $id value
 
   // route dispatcher
-  $dispatcher = new Route\Dispatcher($collector, new Route\ResolverAbstract());
+  $dispatcher = new Route\Dispatcher($collector, new Route\Handler\ResolverAbstract());
 
   // legacy query parameter based routing
   $collQpr = new Route\Collector\\CollectorQPR();
@@ -97,6 +99,10 @@ Getting started
   more specific types, you may specify a custom regex pattern like
   `{foo:[0-9]+}`.
 
+  ```php
+  $pattern = '/user/{action:[^0-9/][^/]*}/{id:[0-9]+}';
+  ```
+
   Predefined shortcuts for placeholder patterns as follows,
 
   ```php
@@ -118,7 +124,7 @@ Getting started
 
   where optional segments can be **nested**. Unlike other libraries, optional
   segments are not limited to the end of the pattern, as long as it is a valid
-  pattern like the `[/{action:xd}]` (not started with a digit) in the example.
+  pattern like the `[/{action:xd}]` in the example.
 
 - **Syntax issues**
 
@@ -136,7 +142,7 @@ Getting started
 <a name="routes"></a>Defining routes
 ---
 
-- **Defining routes with `collector`**
+- **Defining routes with `Phossa\Route\Collector\CollectorInterface`**
 
   Since multiple collectors (route collections) are supported in the dispatcher,
   routes are defined with collectors, but not with the dispatcher.
@@ -154,7 +160,7 @@ Getting started
   $collector->addRoute(new Phossa\Route\Route('GET,HEAD', $routePattern, $handler, $defaultValues));
   ```
 
-  `addGet()` and `addPost()` are all wrappers of `addRoute(RouteInterface)`.
+  `addGet()` and `addPost()` are wrappers of `addRoute(RouteInterface)`.
 
 - **<a name="collector"></a>Multiple routing collections**
 
@@ -164,8 +170,8 @@ Getting started
   // '/usr' related
   $collector_user = (new Route\Collector\Collector())
       ->addGet('/user/list/{id:d}', 'handler1')
-      ->addGet('/usr/view/{id:d}', 'handler2')
-      ->addPost('/usr/new', 'handler3');
+      ->addGet('/user/view/{id:d}', 'handler2')
+      ->addPost('/user/new', 'handler3');
 
   // '/blog' related
   $collector_blog = (new Route\Collector\Collector())
@@ -179,15 +185,128 @@ Getting started
 - **Route handler**
 
   Route handler can be a closure, a callable or even a pseudo callable like
-  `['className', 'method']` which will be resolved by the dispatcher's resolver.
+  `['className', 'method']` which will be resolved by the dispatcher's resolver
+  to a real callable.
 
   ```php
-  // implements Phossa\Route\ResolverInterface
+  // implements Phossa\Route\Handler\ResolverInterface
   $resolver = new \myOwnResolver();
 
   // inject resolver during instantiation of dispatcher
   $dispatcher = new Phossa\Route\Dispatcher($collector, $resolver);
   ```
+
+<a name="dispatch"></a>Dispatching
+---
+
+- **Dispatch with `dispatch()`**
+
+  In the script `index.php`, the dispatcher is normally the last line.
+
+  ```php
+  // index.php
+  // ...
+
+  // dispatch base on request info
+  $dispatcher->dispatch();
+  ```
+
+  `dispatch()` takes no arguments, it will collect information from super
+  globals like `$_SERVER` and `$_REQUEST` and dispatch to the right routines
+  or callables base on route definitions.
+
+- **Dispatch with an Url**
+
+  Inside the script, user may redirect to a new url by,
+
+  ```php
+  $dispatcher->dispatchUrl('GET', '/error404');
+  ```
+- **Match instead of dispatching**
+
+  Instead of executing handlers by default, more control if using `match()`
+
+  ```php
+  // use info from $_SERVER etc.
+  if ($dispatcher->match()) {
+      switch($result->getStatus()) {
+          case 200:
+            // ...
+            break;
+          case 404:
+            // ...
+            break;
+          default:
+            // ...
+            break;
+      }
+  } else {
+      // no match found
+      // ...
+  }
+  ```
+
+  `matchUrl()` is also provided.
+
+<a name="handler"></a>Handlers and default handlers
+
+- **Multiple handlers**
+
+  Handlers are supported not only for the `200 OK` status, but also for other
+  matching status.
+
+  ```php
+  $route = (new Route('GET', '/user/{action:xd}/{id:d}', function($result) {
+              // handler for 200 status
+              $user_id = $result->getParameter('id');
+              // ...
+            })->addHandler(Context\ResultInterface::METHOD_NOT_ALLOWED, 'handler1');
+  ```
+
+  Handler `handler1` will be executed if route matches but method is not right.
+
+- **<a name="default"></a>Default handlers
+
+  Like routes have different handlers, dispatcher and collectors can have
+  default handlers if no handler found for the result.
+
+  Global (dispatcher) level handlers,
+
+  ```php
+  use Phossa\Route\Context\ResultInterface;
+  // ...
+
+  $dispatcher
+    ->addHandler(
+        ResultInterface::MOVED_PERMANENTLY, function($result) {
+        // ...
+        })
+    ->addHandler(
+        ResultInterface::SERVICE_UNAVAILABLE, function($result) {
+        });
+    // ...
+  ```
+
+  Samething applies to the collectors.
+
+- **Handler resolving**
+
+  Most of the time, routes returns a handler like `[ 'className', 'method' ]`.
+  The handler resolver is used to resolving this pseudo handler into real
+  callable.
+
+  ```php
+  use Phossa\Route;
+
+  // dispatcher with default resolver
+  $dispatcher = new Route\Dispatcher(
+      new Route\Collector\Collector(),
+      new Route\Handler\ResolverAbstract()
+  );
+  ```
+
+  Users may write their own handler resolver by extending `ResolverAbstract`
+  class.
 
 - **Pick a routing scheme**
 

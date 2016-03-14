@@ -27,9 +27,10 @@ use Phossa\Route\Exception\LogicException;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-class Route implements RouteInterface, Extension\ExtensionAwareInterface
+class Route implements RouteInterface, Handler\HandlerAwareInterface, Extension\ExtensionAwareInterface
 {
-    use Extension\ExtensionAwareTrait;
+    use Handler\HandlerAwareTrait,
+        Extension\ExtensionAwareTrait;
 
     /**#@+
      * Route related extension stages
@@ -42,16 +43,6 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     const BEFORE_ROUTE = 'BEFORE_ROUTE';
     const AFTER_ROUTE  = 'AFTER_ROUTE';
     /**#@-*/
-
-    /**
-     * Different handler for different status.
-     *
-     * usually only the ResultInterface::OK status handler is set.
-     *
-     * @var    array
-     * @access protected
-     */
-    protected $handlers = [];
 
     /**
      * matching pattern for $_SERVER['PATH_INFO']
@@ -103,32 +94,8 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     ) {
         $this->setMethods($httpMethod)
              ->setPattern($pathPattern)
-             ->setHandler($handler)
+             ->addHandler(ResultInterface::OK, $handler)
              ->setDefault($defaultValues);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setHandler(
-        $handler = null,
-        /*# int */ $status = ResultInterface::OK
-    ) {
-        if (!is_null($handler)) {
-            $this->handlers[(int) $status] = $handler;
-        }
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getHandler(/*# int */ $status)
-    {
-        if (isset($this->handlers[$status])) {
-            return $this->handlers[$status];
-        }
-        return null;
     }
 
     /**

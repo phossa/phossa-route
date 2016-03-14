@@ -77,13 +77,11 @@ interface DispatcherInterface
     )/*# : bool */;
 
     /**
-     * Set default handler for different status
+     * Get the result object
      *
-     * @param  int $status result status
-     * @param  callable|array handler
-     * @return static
+     * @return Context\ResultInterface
      * @access public
      * @api
      */
-    public function setHandler(/*# int */ $status, $handler);
+    public function getResult()/*# : Context\ResultInterface */;
 }

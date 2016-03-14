@@ -28,9 +28,10 @@ use Phossa\Route\Collector\CollectorInterface;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-class Dispatcher implements DispatcherInterface, Extension\ExtensionAwareInterface, Collector\CollectorAwareInterface
+class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, Extension\ExtensionAwareInterface, Collector\CollectorAwareInterface
 {
-    use Extension\ExtensionAwareTrait,
+    use Handler\HandlerAwareTrait,
+        Extension\ExtensionAwareTrait,
         Collector\CollectorAwareTrait;
 
     /**#@+
@@ -50,14 +51,6 @@ class Dispatcher implements DispatcherInterface, Extension\ExtensionAwareInterfa
     /**#@-*/
 
     /**
-     * Default handlers for different status
-     *
-     * @var    array
-     * @access protected
-     */
-    protected $handlers = [];
-
-    /**
      * Result
      *
      * @var    Context\Result
@@ -68,7 +61,7 @@ class Dispatcher implements DispatcherInterface, Extension\ExtensionAwareInterfa
     /**
      * resolver
      *
-     * @var    ResolverInterface
+     * @var    Handler\ResolverInterface
      * @access protected
      */
     protected $resolver;
@@ -80,13 +73,13 @@ class Dispatcher implements DispatcherInterface, Extension\ExtensionAwareInterfa
      * `addCollector()`
      *
      * @param  CollectorInterface $collector
-     * @param  ResolverInterface $resolver
+     * @param  Handler\ResolverInterface $resolver
      * @access public
      * @api
      */
     public function __construct(
         CollectorInterface $collector,
-        ResolverInterface $resolver
+        Handler\ResolverInterface $resolver
     ) {
         $this->addCollector($collector);
         $this->resolver = $resolver;
@@ -150,6 +143,14 @@ class Dispatcher implements DispatcherInterface, Extension\ExtensionAwareInterfa
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getResult()/*# : Context\ResultInterface */
+    {
+        return $this->result;
+    }
+
+    /**
      * Match routes in collectors
      *
      * @return bool
@@ -163,15 +164,6 @@ class Dispatcher implements DispatcherInterface, Extension\ExtensionAwareInterfa
             }
         }
         return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setHandler(/*# int */ $status, $handler)
-    {
-        $this->handlers[(int) $status] = $this->resolver->resolve($handler);
-        return $this;
     }
 
     /**
@@ -229,7 +221,7 @@ class Dispatcher implements DispatcherInterface, Extension\ExtensionAwareInterfa
     }
 
     /**
-     * Execute default handler if no handler found
+     * Execute dispatcher's default handler
      *
      * @return void
      * @access protected
@@ -237,8 +229,8 @@ class Dispatcher implements DispatcherInterface, Extension\ExtensionAwareInterfa
     protected function defaultHandler()
     {
         $status = $this->result->getStatus();
-        if (isset($this->handlers[$status])) {
-            $this->handlers[$status]($this->result);
+        if (($handler = $this->getHandler($status))) {
+            $handler($this->result);
         } else {
             echo sprintf("%d, YOU NEED A REAL HANDLER!", $status);
         }

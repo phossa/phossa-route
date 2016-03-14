@@ -16,7 +16,6 @@
 namespace Phossa\Route;
 
 use Phossa\Route\Exception\LogicException;
-use Phossa\Route\Context\ResultInterface as Status;
 
 /**
  * RouteInterface
@@ -29,30 +28,6 @@ use Phossa\Route\Context\ResultInterface as Status;
  */
 interface RouteInterface
 {
-    /**
-     * Set route handler for this status
-     *
-     * @param  callable|array $handler callable or ['controller','method']
-     * @param  int $status status when execute this handler
-     * @return static
-     * @access public
-     * @api
-     */
-    public function setHandler(
-        $handler = null,
-        /*# int */ $status = Status::OK
-    );
-
-    /**
-     * Get route handler relate to the specific status code
-     *
-     * @param  int $status result status code
-     * @return callable|null
-     * @access public
-     * @api
-     */
-    public function getHandler(/*# int */ $status);
-
     /**
      * Set $_SERVER['PATH_INFO'] matching pattern
      *

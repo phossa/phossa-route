@@ -63,11 +63,11 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phossa\Route\Route::setHandler
+     * @covers Phossa\Route\Route::addHandler
      */
-    public function testSetHandler()
+    public function testAddHandler()
     {
-        $this->object->setHandler('test', Status::METHOD_NOT_ALLOWED);
+        $this->object->addHandler(Status::METHOD_NOT_ALLOWED, 'test');
         $this->assertTrue('test' ===
             $this->object->getHandler(Status::METHOD_NOT_ALLOWED));
     }

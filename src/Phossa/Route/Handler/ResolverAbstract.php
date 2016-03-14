@@ -13,7 +13,7 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Route;
+namespace Phossa\Route\Handler;
 
 /**
  * ResolverAbstract
@@ -22,6 +22,7 @@ namespace Phossa\Route;
  *
  * @package Phossa\Route
  * @author  Hong Zhang <phossa@126.com>
+ * @see     ResolverInterface
  * @version 1.0.0
  * @since   1.0.0 added
  */

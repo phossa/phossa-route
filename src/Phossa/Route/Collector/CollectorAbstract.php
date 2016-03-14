@@ -18,6 +18,7 @@ namespace Phossa\Route\Collector;
 use Phossa\Route\Route;
 use Phossa\Route\RouteInterface;
 use Phossa\Route\Context\ResultInterface;
+use Phossa\Route\Handler\HandlerAwareInterface;
 use Phossa\Route\Extension\ExtensionAwareInterface;
 
 /**
@@ -29,9 +30,10 @@ use Phossa\Route\Extension\ExtensionAwareInterface;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-abstract class CollectorAbstract implements CollectorInterface, ExtensionAwareInterface
+abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInterface, ExtensionAwareInterface
 {
-    use \Phossa\Route\Extension\ExtensionAwareTrait;
+    use \Phossa\Route\Handler\HandlerAwareTrait,
+        \Phossa\Route\Extension\ExtensionAwareTrait;
 
     /**#@+
      * Collector level extension stages
@@ -59,8 +61,13 @@ abstract class CollectorAbstract implements CollectorInterface, ExtensionAwareIn
             $this->match($result) &&
             $this->runExtensions(self::AFTER_COLL, $result)
         ) {
+            // match ok
+            $this->setCollectorHandler($result);
             return true;
         }
+
+        // match failed
+        $this->setCollectorHandler($result);
         return false;
     }
 
@@ -88,6 +95,23 @@ abstract class CollectorAbstract implements CollectorInterface, ExtensionAwareIn
         return $this->addRoute(
             new Route('POST', $pathPattern, $handler, $defaultValues)
         );
+    }
+
+    /**
+     * Set collector level handler if result has no handler set yet
+     *
+     * @param  ResultInterface $result desc
+     * @return static
+     * @access protected
+     */
+    protected function setCollectorHandler(ResultInterface $result)
+    {
+        if (is_null($result->getHandler()) &&
+            $this->getHandler($result->getStatus())
+        ) {
+            $result->setHandler($this->getHandler($result->getStatus()));
+        }
+        return $this;
     }
 
     /**

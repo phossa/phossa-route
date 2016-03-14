@@ -3,10 +3,9 @@
 Introduction
 ---
 
-phossa-route is an application level routing libraray for PHP. It routes base
-on HTTP request including URL, cookies, HTTP headers (e.g. `Accept-Language`)
-etc. It responses with HTTP redirecting or transparent URL rewriting. Also it
-gives suggestions for HTTP response headers (cache related etc.)
+**Phossa-route** is a *fast*, *full-fledged* and *feature-rich* application
+level routing library for PHP. It dispatches requests base on URLs, HTTP
+headers, session informations etc.
 
 It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
 [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4].
@@ -14,6 +13,25 @@ It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
 [PSR-1]: http://www.php-fig.org/psr/psr-1/ "PSR-1: Basic Coding Standard"
 [PSR-2]: http://www.php-fig.org/psr/psr-2/ "PSR-2: Coding Style Guide"
 [PSR-4]: http://www.php-fig.org/psr/psr-4/ "PSR-4: Autoloader"
+
+Why another routing library ?
+---
+
+- Supports different [routing strategies](#strategy).
+
+- Supports different [regular expression algorithms](#algorithm).
+
+- Concise [route syntax](#syntax). Route parameters and optional route segments.
+
+- Multiple routing [collections](#collector) allowed
+
+- Miltiple level [extensions](#extension) supported, namely dispatcher level,
+  routing collection level, single route level. Able to fine control of routing
+  process.
+
+- Dependency injection ready. Support third-party Di libraries
+
+- [Fast](#performance) ! If it does matters to you.
 
 Getting started
 ---
@@ -36,60 +54,63 @@ Getting started
   }
   ```
 
-- **URL rewrite**
+- **Simple usage**
 
-  Setup URL rewriting to do routing with `index.php`
+  ```php
+  use Phossa\Route;
 
-  - Apache `.htaccess` with `mod_rewrite` engine is on
+  // route collector
+  $collector  = new Route\Collector\Collector();
 
-    ```
-    DirectorySlash Off
-    Options -MultiViews
-    DirectoryIndex index.php
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-l
-    RewriteRule ^ index.php [QSA,L]
-    ```
+  // add routes
+  $collector->addGet(
+                '/blog/{action:xd}[/{year:d}[/{month:d}[/{date:d}]]]',
+                function($result) {
+                    echo "action is " . $result->getParameter('action');
+                })
+            ->addPost('/blog/post', 'handler2')
+            ->addRoute(new Route\Route(
+                'GET,HEAD', // support these methods
+                '/blog/read[/{id:d}]',
+                'handler3',
+                ['id' => '1'] // default $id value
+            ));
 
-    and in your `httpd.conf` file to enable using of `.htaccess`
+  // route dispatcher
+  $dispatcher = new Route\Dispatcher($collector, new Route\ResolverAbstract());
 
-    ```
-    <VirtualHost *:80>
-      ServerAdmin me@mysite.com
-      DocumentRoot "/path/www.mysite.com/public"
-      ServerName mysite.com
-      ServerAlias www.mysite.com
+  // query parameter based routing
+  $collQpr = new Route\Collector\\CollectorQPR();
+  $dispatcher->addCollector($collQpr);
 
-      <Directory "/path/www.mysite.com/public">
-        Options -Indexes +FollowSymLinks +Includes
-        AllowOverride All
-        Order allow,deny
-        Allow from all
-      </Directory>
-    </VirtualHost>
-    ```
+  // route thru first collector
+  // $dispatcher->dispatchUrl('GET', '/blog/list/2016');
 
-  - Nginx configration in `nginx.conf`
+  // old style route still supported
+  // $dispatcher->dispatchUrl('GET', '/blog?r=blog-list-uear-2016');
+  ```
 
-    ```
-    server {
-        listen       80;
-        server_name  www.mysite.com mysite.com;
-        root         /path/www.mysite.com/public;
+<a name="syntax"></a>Route syntax
+---
 
-        try_files $uri /index.php;
+- **Placeholders**
 
-        # this will only pass index.php to the fastcgi process
-        location /index.php {
-            fastcgi_connect_timeout 3s;
-            fastcgi_read_timeout 10s;
-            include fastcgi_params;
-            fastcgi_pass 127.0.0.1:9000;
-        }
-    }
-    ```
+  A route pattern syntax is used where `{foo}` specifies a placeholder or
+  parameter with name `foo` and matching the string `[^/]++`. In order to match
+  more specific types, you can specify a custom regex pattern by writing
+  `{foo:[0-9]+}`.
+
+  Predefined shortcuts for placeholder patterns as follows,
+
+  ```php
+  ':d}'   => ':[0-9]++}',             // digit only
+  ':l}'   => ':[a-z]++}',             // lower case
+  ':u}'   => ':[A-Z]++}',             // upper case
+  ':a}'   => ':[0-9a-zA-Z]++}',       // alphanumeric
+  ':c}'   => ':[0-9a-zA-Z+_\-\.]++}', // common chars
+  ':nd}'  => ':[^0-9/]++}',           // not digits
+  ':xd}'  => ':[^0-9/][^/]*+}',       // no leading digits
+  ```
 
 - **Pick a routing scheme**
 
@@ -357,3 +378,61 @@ License
 ---
 
 [MIT License](http://mit-license.org/)
+
+Appendix
+---
+
+- **URL rewrite**
+
+  Setup URL rewriting to do routing with `index.php`
+
+  - Apache `.htaccess` with `mod_rewrite` engine is on
+
+    ```
+    DirectorySlash Off
+    Options -MultiViews
+    DirectoryIndex index.php
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-l
+    RewriteRule ^ index.php [QSA,L]
+    ```
+
+    and in your `httpd.conf` file to enable using of `.htaccess`
+
+    ```
+    <VirtualHost *:80>
+      ServerAdmin me@mysite.com
+      DocumentRoot "/path/www.mysite.com/public"
+      ServerName mysite.com
+      ServerAlias www.mysite.com
+
+      <Directory "/path/www.mysite.com/public">
+        Options -Indexes +FollowSymLinks +Includes
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+      </Directory>
+    </VirtualHost>
+    ```
+
+  - Nginx configration in `nginx.conf`
+
+    ```
+    server {
+        listen       80;
+        server_name  www.mysite.com mysite.com;
+        root         /path/www.mysite.com/public;
+
+        try_files $uri /index.php;
+
+        # this will only pass index.php to the fastcgi process
+        location /index.php {
+            fastcgi_connect_timeout 3s;
+            fastcgi_read_timeout 10s;
+            include fastcgi_params;
+            fastcgi_pass 127.0.0.1:9000;
+        }
+    }
+    ```

@@ -15,6 +15,7 @@
 
 namespace Phossa\Route\Collector;
 
+use Phossa\Route\Route;
 use Phossa\Route\RouteInterface;
 use Phossa\Route\Context\ResultInterface;
 use Phossa\Route\Extension\ExtensionAwareInterface;
@@ -61,6 +62,32 @@ abstract class CollectorAbstract implements CollectorInterface, ExtensionAwareIn
             return true;
         }
         return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addGet(
+        /*# string */ $pathPattern,
+        $handler = null,
+        array $defaultValues = []
+    ) {
+        return $this->addRoute(
+            new Route('GET', $pathPattern, $handler, $defaultValues)
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addPost(
+        /*# string */ $pathPattern,
+        $handler = null,
+        array $defaultValues = []
+    ) {
+        return $this->addRoute(
+            new Route('POST', $pathPattern, $handler, $defaultValues)
+        );
     }
 
     /**

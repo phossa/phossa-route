@@ -52,4 +52,36 @@ interface CollectorInterface
      * @internal
      */
     public function matchRoute(ResultInterface $result)/*# : bool */;
+
+    /**
+     * Add GET route
+     *
+     * @param  string $pathPattern url pattern
+     * @param  callable|array $handler
+     * @param  array $defaultValues default values for placeholders
+     * @return static
+     * @access public
+     * @api
+     */
+    public function addGet(
+        /*# string */ $pathPattern,
+        $handler = null,
+        array $defaultValues = []
+    );
+
+    /**
+     * Add POST route
+     *
+     * @param  string $pathPattern url pattern
+     * @param  callable|array $handler
+     * @param  array $defaultValues default values for placeholders
+     * @return static
+     * @access public
+     * @api
+     */
+    public function addPost(
+        /*# string */ $pathPattern,
+        $handler = null,
+        array $defaultValues = []
+    );
 }

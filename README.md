@@ -3,12 +3,10 @@
 Introduction
 ---
 
-**Phossa-route** is a *fast*, *full-fledged* and *feature-rich* application
+**phossa-route** is a *fast*, *full-fledged* and *feature-rich* application
 level routing library for PHP. It dispatches requests base on URLs, HTTP
-headers, session informations etc.
-
-It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
-[PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4].
+headers, session informations etc. It requires PHP 5.4 and supports PHP 7.0+,
+HHVM. It is compliant with [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4].
 
 [PSR-1]: http://www.php-fig.org/psr/psr-1/ "PSR-1: Basic Coding Standard"
 [PSR-2]: http://www.php-fig.org/psr/psr-2/ "PSR-2: Coding Style Guide"
@@ -17,21 +15,21 @@ It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
 Why another routing library ?
 ---
 
-- Supports different [routing strategies](#strategy).
+- [Super fast](#performance) ! If it matters to you.
 
-- Supports different [regular expression algorithms](#algorithm).
+- Supports different [routing strategies](#strategy) and combinations of these
+  strategies.
 
-- Concise [route syntax](#syntax). Route parameters and optional route segments.
+- Supports different [regular expression routing algorithms](#algorithm)
+  including the [fastRoute algorithm](http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html)
 
-- Multiple routing [collections](#collector) allowed
+- [Concise route syntax](#syntax). Route parameters and optional route segments.
 
-- Miltiple level [extensions](#extension) supported, namely dispatcher level,
-  routing collection level, single route level. Able to fine control of routing
-  process.
+- [Multiple routing collections](#collector) allowed.
+
+- Fine control of routing process by [multiple level of extensions](#extension).
 
 - Dependency injection ready. Support third-party Di libraries
-
-- [Fast](#performance) ! If it does matters to you.
 
 Getting started
 ---
@@ -59,8 +57,8 @@ Getting started
   ```php
   use Phossa\Route;
 
-  // route collector
-  $collector  = new Route\Collector\Collector();
+  // default regex route collector (collection of routes)
+  $collector = new Route\Collector\Collector();
 
   // add routes
   $collector->addGet(
@@ -70,24 +68,23 @@ Getting started
                 })
             ->addPost('/blog/post', 'handler2')
             ->addRoute(new Route\Route(
-                'GET,HEAD', // support these methods
+                'GET,HEAD', // support multiple methods
                 '/blog/read[/{id:d}]',
                 'handler3',
-                ['id' => '1'] // default $id value
-            ));
+                ['id' => '1'])); // default $id value
 
   // route dispatcher
   $dispatcher = new Route\Dispatcher($collector, new Route\ResolverAbstract());
 
-  // query parameter based routing
+  // legacy query parameter based routing
   $collQpr = new Route\Collector\\CollectorQPR();
   $dispatcher->addCollector($collQpr);
 
   // route thru first collector
   // $dispatcher->dispatchUrl('GET', '/blog/list/2016');
 
-  // old style route still supported
-  // $dispatcher->dispatchUrl('GET', '/blog?r=blog-list-uear-2016');
+  // old style routes still supported
+  // $dispatcher->dispatchUrl('GET', '/blog?r=blog-list-year-2016');
   ```
 
 <a name="syntax"></a>Route syntax
@@ -96,9 +93,8 @@ Getting started
 - **Placeholders**
 
   A route pattern syntax is used where `{foo}` specifies a placeholder or
-  parameter with name `foo` and matching the string `[^/]++`. In order to match
-  more specific types, you can specify a custom regex pattern by writing
-  `{foo:[0-9]+}`.
+  parameter with name `foo` and default pattern `[^/]++`. In order to match
+  more specific types, you may specify a custom regex pattern `{foo:[0-9]+}`.
 
   Predefined shortcuts for placeholder patterns as follows,
 
@@ -110,6 +106,66 @@ Getting started
   ':c}'   => ':[0-9a-zA-Z+_\-\.]++}', // common chars
   ':nd}'  => ':[^0-9/]++}',           // not digits
   ':xd}'  => ':[^0-9/][^/]*+}',       // no leading digits
+  ```
+- **Optional segments**
+
+  Optional segments in the route can be specified with `[]` like the following,
+
+  ```php
+  $pattern = '/blog[/{action:xd}][/{year:d}[/{month:d}[/{date:d}]]]';
+  ```
+
+  where optional segments can be **nested**. Unlike other libraries, optional
+  segments are not limited to the end of the pattern, as long as it is a valid
+  pattern.
+
+- **Syntax issues**
+
+  - Use of `[]` outside placeholders
+
+    `[]` can not be used outside placeholders, *IF YOU DO NEED* to use them
+    as part of the pattern, please include them inside a placeholder.
+
+  - Use of `()` inside placeholders
+
+    Capturing groups `()` can not be used inside placeholders. For example
+    `{user:(root|phossa)}` is not valid. Instead you can use either use
+    `{user:root|phossa}` or `{user:(?:root|phossa)}`.
+
+<a name="routes"></a>Defining routes
+---
+
+- Defining routes with `collector`
+
+  Since multiple collectors (route collections) are supported in the dispatcher,
+  routes are defined with collectors.
+
+- Defining routes
+
+  ```php
+  // define a GET route
+  $collector->addGet($routePattern, $handler, $defaultValues);
+
+  // define a POST route
+  $collector->addPost($routePattern, $handler, $defaultValues);
+
+  // multiple methods wanted
+  $collector->addRoute(new Phossa\Route\Route('GET,HEAD', $routePattern, $handler, $defaultValues));
+  ```
+
+  `addGet()` and `addPost()` are all wrappers of `addRoute(RouteInterface)`.
+
+- Route handler
+
+  Route handler can be a closure, a callable or even a pseudo callable like
+  `['className', 'method']` which will be resolved by the dispatcher's resolver.
+
+  ```php
+  // implements Phossa\Route\ResolverInterface
+  $resolver = new \myOwnResolver();
+
+  // inject resolver during instantiation of dispatcher
+  $dispatcher = new Phossa\Route\Dispatcher($collector, $resolver);
   ```
 
 - **Pick a routing scheme**

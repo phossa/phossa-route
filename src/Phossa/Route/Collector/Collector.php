@@ -213,6 +213,7 @@ class Collector extends CollectorAbstract
                 case 'session':
                     $against = isset($_SESSION[$keyName]) ?
                         $_SESSION[$keyName] : '';
+                    break;
                 case 'cookie':
                     $against = isset($_COOKIE[$keyName]) ?
                         $_COOKIE[$keyName] : '';

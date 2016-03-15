@@ -27,7 +27,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         // clean leftover in the $_SERVER
-        $_SERVER = [];
+        //$_SERVER = [];
         $this->col = new Collector\Collector(new ParserStd());
         $this->col->addRoute(new Route('GET,POST', '/user[/{name:xd}]',
             function(Result $result) {

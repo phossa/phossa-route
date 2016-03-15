@@ -15,6 +15,9 @@
 
 namespace Phossa\Route\Collector;
 
+use Phossa\Route\Message\Message;
+use Phossa\Route\Debug\DebuggableInterface;
+
 /**
  * CollectorAwareTrait
  *
@@ -40,6 +43,23 @@ trait CollectorAwareTrait
      */
     public function addCollector(CollectorInterface $collector)
     {
+        // set debug
+        if ($this instanceof DebuggableInterface) {
+            // debug message
+            $this->info(
+                Message::get(
+                    Message::DEBUG_ADD_COLLECTOR,
+                    get_class($collector)
+                )
+            );
+
+            // set collector debug mode also
+            if ($this->getDebugMode() &&
+                $collector instanceof DebuggableInterface) {
+                $collector->setDebugMode(true);
+            }
+        }
+
         $this->collectors[] = $collector;
         return $this;
     }

@@ -15,6 +15,8 @@
 
 namespace Phossa\Route\Regex;
 
+use Phossa\Route\Message\Message;
+
 /**
  * ParserStd
  *
@@ -65,8 +67,16 @@ class ParserStd extends ParserAbstract
         /*# string */ $pattern
     )/*# : string */ {
         $regex = $this->convert($name, $pattern);
-        $this->regex[]  = $regex;
+        $this->regex[$name]  = $regex;
         $this->modified = true;
+
+        // debug message
+        $this->debug(Message::get(
+            Message::DEBUG_PARSE_PATTERN,
+            $pattern,
+            $regex
+        ));
+
         return $regex;
     }
 
@@ -173,6 +183,12 @@ class ParserStd extends ParserAbstract
                 $res[substr($key, 0, -$len)] = $val;
             }
         }
+
+        // debug
+        $this->debug(Message::get(
+            Message::DEBUG_MATCH_REGEX,
+            $this->regex[$routeKey]
+        ));
 
         return [ $routeKey, $res ];
     }

@@ -43,7 +43,7 @@ interface ParserInterface
     )/*# : string */;
 
     /**
-     * Match an URL
+     * Match an URL, return regex name and matched parameters
      *
      * @param  string $url
      * @return array|false [ $name, $matched ] or false

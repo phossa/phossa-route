@@ -42,14 +42,14 @@ interface ExtensionInterface
      *
      * If `false` returned, caller will skip the rest procedure
      *
-     * @param  string $stage current stage
      * @param  ResultInterface $result result object
+     * @param  string $stage current stage
      * @return bool
      * @access public
      * @api
      */
     public function __invoke(
-        /*# string */ $stage,
-        ResultInterface $result
+        ResultInterface $result,
+        /*# string */ $stage = ''
     )/*# : bool */;
 }

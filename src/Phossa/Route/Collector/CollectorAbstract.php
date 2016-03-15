@@ -17,7 +17,9 @@ namespace Phossa\Route\Collector;
 
 use Phossa\Route\Route;
 use Phossa\Route\RouteInterface;
+use Phossa\Route\Message\Message;
 use Phossa\Route\Context\ResultInterface;
+use Phossa\Route\Debug\DebuggableInterface;
 use Phossa\Route\Handler\HandlerAwareInterface;
 use Phossa\Route\Extension\ExtensionAwareInterface;
 
@@ -30,9 +32,10 @@ use Phossa\Route\Extension\ExtensionAwareInterface;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInterface, ExtensionAwareInterface
+abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInterface, ExtensionAwareInterface, DebuggableInterface
 {
-    use \Phossa\Route\Handler\HandlerAwareTrait,
+    use \Phossa\Route\Debug\DebuggableTrait,
+        \Phossa\Route\Handler\HandlerAwareTrait,
         \Phossa\Route\Extension\ExtensionAwareTrait;
 
     /**#@+
@@ -61,6 +64,16 @@ abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInte
             $this->match($result) &&
             $this->runExtensions(self::AFTER_COLL, $result)
         ) {
+            // debug message
+            $this->debug(Message::get(
+                Message::DEBUG_MATCH_ROUTE,
+                $result->getRequest()->getPathInfo(),
+                $result->getRoute() ?
+                    $result->getRoute()->getPattern() :
+                    'MATCHED',
+                get_class($this)
+            ));
+
             // match ok
             $this->setCollectorHandler($result);
             return true;
@@ -106,10 +119,18 @@ abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInte
      */
     protected function setCollectorHandler(ResultInterface $result)
     {
-        if (is_null($result->getHandler()) &&
-            $this->getHandler($result->getStatus())
+        $status = $result->getStatus();
+        if (is_null($result->getRoute()) &&
+            is_null($result->getHandler()) &&
+            $this->getHandler($status)
         ) {
-            $result->setHandler($this->getHandler($result->getStatus()));
+            // debug message
+            $this->debug(Message::get(
+                Message::DEBUG_SET_C_HANDLER,
+                get_class($this),
+                $status
+            ));
+            $result->setHandler($this->getHandler($status));
         }
         return $this;
     }

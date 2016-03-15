@@ -18,6 +18,7 @@ namespace Phossa\Route\Extension;
 use Phossa\Route\Message\Message;
 use Phossa\Route\Context\ResultInterface;
 use Phossa\Route\Exception\LogicException;
+use Phossa\Route\Debug\DebuggableInterface;
 
 /**
  * ExtensionAwareTrait
@@ -70,6 +71,7 @@ trait ExtensionAwareTrait
                 $this->stages[$stg][$this->getPriority($pri)] = $extension;
                 unset($this->sorted[$stg]);
             }
+            $type = get_class($extension);
 
         // other type of callable
         } else {
@@ -81,7 +83,18 @@ trait ExtensionAwareTrait
             }
             $this->stages[$stage][$this->getPriority($priority)] = $extension;
             unset($this->sorted[$stage]);
+            $type = gettype($extension);
         }
+
+        // debug message
+        if ($this instanceof DebuggableInterface) {
+            $this->info(Message::get(
+                Message::DEBUG_ADD_EXTENSION,
+                $type,
+                $stage
+            ));
+        }
+
         return $this;
     }
 
@@ -104,7 +117,17 @@ trait ExtensionAwareTrait
     )/*# : bool */ {
         if ($this->sortExtensions($stage)) {
             foreach ($this->sorted[$stage] as $ext) {
-                if ($ext($stage, $result)) {
+                // debug message
+                if ($this instanceof DebuggableInterface) {
+                    $this->debug(Message::get(
+                        Message::DEBUG_RUN_EXTENSION,
+                        get_class($this),
+                        is_object($ext) ? get_class($ext) : gettype($ext),
+                        $stage
+                    ));
+                }
+
+                if (false !== $ext($result, $stage)) {
                     continue;
                 }
                 return false;

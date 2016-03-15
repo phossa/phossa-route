@@ -28,9 +28,10 @@ use Phossa\Route\Collector\CollectorInterface;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, Extension\ExtensionAwareInterface, Collector\CollectorAwareInterface
+class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, Extension\ExtensionAwareInterface, Collector\CollectorAwareInterface, Debug\DebuggableInterface
 {
-    use Handler\HandlerAwareTrait,
+    use Debug\DebuggableTrait,
+        Handler\HandlerAwareTrait,
         Extension\ExtensionAwareTrait,
         Collector\CollectorAwareTrait;
 
@@ -211,7 +212,7 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
             ) {
                 if ($route->runExtensions(Route::BEFORE_ROUTE, $this->result)) {
                     $callable($this->result);
-                    $route->runExtensions(Route::AFTER_ROUTE, $this->result);
+                    $route->runExtensions(Route::AFTER_ROUTE,$this->result);
                 }
             } else {
                 $callable($this->result);

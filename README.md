@@ -1,12 +1,18 @@
 # phossa-route
+[![Build Status](https://travis-ci.org/phossa/phossa-route.svg?branch=master)](https://travis-ci.org/phossa/phossa-route.svg?branch=master)
+[![HHVM Status](http://hhvm.h4cc.de/badge/phossa/phossa-route.svg)](http://hhvm.h4cc.de/package/phossa/phossa-route)
+[![Latest Stable Version](https://poser.pugx.org/phossa/phossa-route/v/stable)](https://packagist.org/packages/phossa/phossa-route)
+[![License](https://poser.pugx.org/phossa/phossa-route/license)](https://packagist.org/packages/phossa/phossa-route)
 
 Introduction
 ---
 
 **phossa-route** is a *fast*, *full-fledged* and *feature-rich* application
 level routing library for PHP. It dispatches requests base on URLs, HTTP
-headers, session informations etc. It requires PHP 5.4 and supports PHP 7.0+,
-HHVM. It is compliant with [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4].
+headers, session informations etc.
+
+It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
+[PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4].
 
 [PSR-1]: http://www.php-fig.org/psr/psr-1/ "PSR-1: Basic Coding Standard"
 [PSR-2]: http://www.php-fig.org/psr/psr-2/ "PSR-2: Coding Style Guide"
@@ -14,7 +20,6 @@ HHVM. It is compliant with [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4].
 
 Why another routing library ?
 ---
-
 
 - [Super fast](#performance) ! If it matters to you.
 
@@ -88,6 +93,29 @@ Getting started
 
   // old style routes still supported
   // $dispatcher->dispatchUrl('GET', '/blog?r=blog-list-year-2016');
+  ```
+
+- **Use extens**
+
+  Extensions are more like filters to deal with the result before or after
+  certain actions.
+
+  ```php
+  use Phossa\Route\Dispatcher
+  use Phossa\Route\Extensions\RedirectToHttpsExtension;
+
+  // direct any HTTP request to HTTPs before any routing
+  dispatcher->addExtension(new RedirectToHttpsExtension());
+
+  // need auth for any request to '/user' prefixed url
+  $dispatcher->addExtension(function($result) {
+      $pattern = $result->getRequest()->getPattern();
+      if ('/user' == substr($pattern, 0, 5) && !isset($_SESSION['auth'])) {
+          // redirect to auth page
+      }
+      // return FALSE to skip the dispatching process
+      return true;
+  }, Dispatcher::BEFORE_MATCH);
   ```
 
 <a name="syntax"></a>Route syntax

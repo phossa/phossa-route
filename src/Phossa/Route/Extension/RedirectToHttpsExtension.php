@@ -67,8 +67,8 @@ class RedirectToHttpsExtension implements ExtensionInterface
      * @inheritDoc
      */
     public function __invoke(
-        /*# string */ $stage,
-        ResultInterface $result
+        ResultInterface $result,
+        /*# string */ $stage = ''
     )/*# : bool */ {
         if (!$result->getRequest()->getServerInfo('https') && $stage) {
             $result->setStatus(Status::MOVED_PERMANENTLY)

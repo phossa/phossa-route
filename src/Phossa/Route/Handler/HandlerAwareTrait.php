@@ -15,6 +15,9 @@
 
 namespace Phossa\Route\Handler;
 
+use Phossa\Route\Message\Message;
+use Phossa\Route\Debug\DebuggableInterface;
+
 /**
  * HandlerAwareTrait
  *
@@ -46,6 +49,15 @@ trait HandlerAwareTrait
     {
         if (!is_null($handler)) {
             $this->handlers[(int) $status] = $handler;
+
+            // debug message
+            if ($this instanceof DebuggableInterface) {
+                $this->debug(Message::get(
+                    Message::DEBUG_ADD_HANDLER,
+                    is_object($handler) ? get_class($handler) : gettype($handler),
+                    get_class($this)
+                ));
+            }
         }
         return $this;
     }

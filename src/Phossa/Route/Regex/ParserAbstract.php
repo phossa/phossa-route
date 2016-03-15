@@ -15,6 +15,8 @@
 
 namespace Phossa\Route\Regex;
 
+use Phossa\Route\Debug\DebuggableInterface;
+
 /**
  * ParserAbstract
  *
@@ -23,9 +25,10 @@ namespace Phossa\Route\Regex;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-abstract class ParserAbstract implements ParserInterface
+abstract class ParserAbstract implements ParserInterface, DebuggableInterface
 {
-    use \Phossa\Shared\Pattern\SetPropertiesTrait;
+    use \Phossa\Route\Debug\DebuggableTrait,
+        \Phossa\Shared\Pattern\SetPropertiesTrait;
 
     /**
      * shortcuts

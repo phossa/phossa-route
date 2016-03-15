@@ -51,8 +51,8 @@ class SampleExtension implements ExtensionInterface
      * @inheritDoc
      */
     public function __invoke(
-        /*# string */ $stage,
-        ResultInterface $result
+        ResultInterface $result,
+        /*# string */ $stage = ''
     )/*# : bool */ {
         echo sprintf(
             "%s(%d) ",

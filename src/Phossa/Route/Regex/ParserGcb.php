@@ -15,6 +15,8 @@
 
 namespace Phossa\Route\Regex;
 
+use Phossa\Route\Message\Message;
+
 /**
  * ParserGcb
  *
@@ -84,6 +86,13 @@ class ParserGcb extends ParserAbstract
         $this->regex[$name] = $regex;
         $this->maps[$name]  = $map;
         $this->modified = true;
+
+        // debug message
+        $this->debug(Message::get(
+            Message::DEBUG_PARSE_PATTERN,
+            $pattern,
+            $regex
+        ));
 
         return $regex;
     }
@@ -227,6 +236,13 @@ class ParserGcb extends ParserAbstract
                 $res[$map[$idx - 1]] = $val;
             }
         }
+
+        // debug
+        $this->debug(Message::get(
+            Message::DEBUG_MATCH_REGEX,
+            $this->regex[$name]
+        ));
+        
         return [ $name, $res ];
     }
 }

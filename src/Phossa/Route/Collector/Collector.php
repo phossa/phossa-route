@@ -61,6 +61,21 @@ class Collector extends CollectorAbstract
     public function __construct(ParserInterface $parser = null)
     {
         $this->parser = $parser ?: new ParserGcb();
+
+        // set debug
+        $this->info(
+            Message::get(
+                Message::DEBUG_ADD_PARSER,
+                get_class($this->parser),
+                get_class($this)
+            )
+        );
+
+        // set collector debug mode also
+        if ($this->getDebugMode() &&
+            $this->parser instanceof DebuggableInterface) {
+            $this->parser->setDebugMode(true);
+        }
     }
 
     /**
@@ -95,6 +110,13 @@ class Collector extends CollectorAbstract
             }
             $this->routes[$routeKey][$method] = $route;
         }
+
+        // debug message
+        $this->info(Message::get(
+            Message::DEBUG_ADD_ROUTE,
+            $route->getPattern(),
+            join('|', $methods)
+        ));
 
         return $this;
     }
@@ -149,9 +171,6 @@ class Collector extends CollectorAbstract
         // get the route
         $route = $this->routes[$routeKey][$method];
 
-        // remember the route
-        $result->setRoute($route);
-
         // apply others filters
         foreach ($route->getFilters() as $field => $pattern) {
             if (!preg_match(
@@ -162,6 +181,9 @@ class Collector extends CollectorAbstract
                 return false;
             }
         }
+
+        // remember the route
+        $result->setRoute($route);
 
         // set result's parameters
         $result->setParameter(array_replace($route->getDefault(), $matches));

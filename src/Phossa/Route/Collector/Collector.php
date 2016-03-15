@@ -178,7 +178,9 @@ class Collector extends CollectorAbstract
                 '~'.$pattern.'~x',
                 $request->getServerInfo($field)
             )) {
-                $result->setStatus(Status::PRECONDITION_FAILED);
+                $status = Status::PRECONDITION_FAILED;
+                $result->setStatus($status)
+                       ->setHandler($route->getHandler($status));
                 return false;
             }
         }
@@ -190,8 +192,9 @@ class Collector extends CollectorAbstract
         $result->setParameter(array_replace($route->getDefault(), $matches));
 
         // set status & handler
-        $result->setStatus(Status::OK);
-        $result->setHandler($route->getHandler(Status::OK));
+        $status = Status::OK;
+        $result->setStatus($status)
+               ->setHandler($route->getHandler(Status::OK));
 
         return true;
     }

@@ -15,9 +15,7 @@
 
 namespace Phossa\Route\Collector;
 
-use Phossa\Route\RouteInterface;
 use Phossa\Route\Context\ResultInterface;
-use Phossa\Route\Exception\LogicException;
 
 /**
  * CollectorInterface
@@ -30,19 +28,8 @@ use Phossa\Route\Exception\LogicException;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-interface CollectorInterface
+interface CollectorInterface extends AddRouteInterface
 {
-    /**
-     * Add one route to the collector
-     *
-     * @param  RouteInterface $route
-     * @return static
-     * @throws LogicException if route goes wrong
-     * @access public
-     * @api
-     */
-    public function addRoute(RouteInterface $route);
-
     /**
      * Match with routes
      *
@@ -52,36 +39,4 @@ interface CollectorInterface
      * @internal
      */
     public function matchRoute(ResultInterface $result)/*# : bool */;
-
-    /**
-     * Add GET route
-     *
-     * @param  string $pathPattern url pattern
-     * @param  callable|array $handler
-     * @param  array $defaultValues default values for placeholders
-     * @return static
-     * @access public
-     * @api
-     */
-    public function addGet(
-        /*# string */ $pathPattern,
-        $handler = null,
-        array $defaultValues = []
-    );
-
-    /**
-     * Add POST route
-     *
-     * @param  string $pathPattern url pattern
-     * @param  callable|array $handler
-     * @param  array $defaultValues default values for placeholders
-     * @return static
-     * @access public
-     * @api
-     */
-    public function addPost(
-        /*# string */ $pathPattern,
-        $handler = null,
-        array $defaultValues = []
-    );
 }

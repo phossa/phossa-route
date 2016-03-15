@@ -28,7 +28,7 @@ use Phossa\Route\Collector\CollectorInterface;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, Extension\ExtensionAwareInterface, Collector\CollectorAwareInterface, Debug\DebuggableInterface
+class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, Extension\ExtensionAwareInterface, Collector\CollectorAwareInterface, Debug\DebuggableInterface, Collector\AddRouteInterface
 {
     use Debug\DebuggableTrait,
         Handler\HandlerAwareTrait,
@@ -79,11 +79,11 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
      * @api
      */
     public function __construct(
-        CollectorInterface $collector,
-        Handler\ResolverInterface $resolver
+        CollectorInterface $collector = null,
+        Handler\ResolverInterface $resolver = null
     ) {
-        $this->addCollector($collector);
-        $this->resolver = $resolver;
+        $this->addCollector($collector ?: new Collector\Collector());
+        $this->resolver = $resolver ?: new Handler\ResolverAbstract();
     }
 
     /**
@@ -149,6 +149,53 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     public function getResult()/*# : Context\ResultInterface */
     {
         return $this->result;
+    }
+
+    /**
+     * Add route to the first collector
+     *
+     * {@inheritDoc}
+     */
+    public function addRoute(RouteInterface $route)
+    {
+        $this->getCollectors()[0]->addRoute($route);
+        return $this;
+    }
+
+    /**
+     * Add a 'GET,HEAD' route to the first collector
+     *
+     * {@inheritDoc}
+     */
+    public function addGet(
+        /*# string */ $pathPattern,
+        $handler = null,
+        array $defaultValues = []
+    ) {
+        $this->getCollectors()[0]->addGet(
+            $pathPattern,
+            $handler,
+            $defaultValues
+        );
+        return $this;
+    }
+
+    /**
+     * Add a 'POST' route to the first collector
+     *
+     * {@inheritDoc}
+     */
+    public function addPost(
+        /*# string */ $pathPattern,
+        $handler = null,
+        array $defaultValues = []
+    ) {
+        $this->getCollectors()[0]->addPost(
+            $pathPattern,
+            $handler,
+            $defaultValues
+        );
+        return $this;
     }
 
     /**

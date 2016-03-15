@@ -74,7 +74,7 @@ abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInte
                 get_class($this)
             ));
 
-            // match ok
+            // set collector handler if no handler yet
             $this->setCollectorHandler($result);
             return true;
         }
@@ -93,7 +93,7 @@ abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInte
         array $defaultValues = []
     ) {
         return $this->addRoute(
-            new Route('GET', $pathPattern, $handler, $defaultValues)
+            new Route('GET,HEAD', $pathPattern, $handler, $defaultValues)
         );
     }
 
@@ -120,10 +120,7 @@ abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInte
     protected function setCollectorHandler(ResultInterface $result)
     {
         $status = $result->getStatus();
-        if (is_null($result->getRoute()) &&
-            is_null($result->getHandler()) &&
-            $this->getHandler($status)
-        ) {
+        if (is_null($result->getHandler()) && $this->getHandler($status)) {
             // debug message
             $this->debug(Message::get(
                 Message::DEBUG_SET_C_HANDLER,

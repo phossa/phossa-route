@@ -24,6 +24,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        $_SERVER = [];
         $this->object = new Collector(new ParserStd, [ 'chunk' => 3 ]);
     }
 
@@ -436,7 +437,6 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatch5()
     {
-        unset($_SERVER['SERVER_NAME']);
         $route = new Route('GET,POST', '/user[/{name:c}]');
         $route->addFilter('m.phossa.com', 'server_name');
         $this->object->addRoute($route);

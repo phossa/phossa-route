@@ -21,6 +21,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $_COOKIE = ['cookie' => 'test'];
         $_POST   = ['post' => 'test'];
 
+        $_SERVER = [];
         $this->object = new Request('POST', '/user/list/1234?id=phossa');
     }
 

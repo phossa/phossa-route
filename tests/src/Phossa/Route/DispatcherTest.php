@@ -26,6 +26,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        // clean leftover in the $_SERVER
+        $_SERVER = [];
         $this->col = new Collector\Collector(new ParserStd());
         $this->col->addRoute(new Route('GET,POST', '/user[/{name:xd}]',
             function(Result $result) {
@@ -86,8 +88,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         // match
         $result1 = new Result(new Request('GET', '/user/phossa'));
         $this->object->match($result1);
-        //$res1 = $this->getPrivateProperty('result');
-        $this->assertEquals('phossa', $result1->getParameter('name'));
+        $res1 = $this->getPrivateProperty('result');
+        $this->assertEquals('phossa', $res1->getParameter('name'));
 
         // no match
         $result2 = new Result(new Request('GET', '/user2/bingo'));
@@ -113,8 +115,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $this->expectOutputString("200 User 'phossa'");
         $result1 = new Result(new Request('GET', '/user/phossa'));
         $this->object->dispatch($result1);
-        //$res1 = $this->getPrivateProperty('result');
-        $this->assertEquals('phossa', $result1->getParameter('name'));
+        $res1 = $this->getPrivateProperty('result');
+        $this->assertEquals('phossa', $res1->getParameter('name'));
     }
 
     /**
@@ -123,8 +125,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     public function testMatchUrl()
     {
         $this->object->matchUrl('GET', '/user/phossa');
-        //$res1 = $this->getPrivateProperty('result');
-        $this->assertEquals('phossa', $this->object->getResult()->getParameter('name'));
+        $res1 = $this->getPrivateProperty('result');
+        $this->assertEquals('phossa', $res1->getParameter('name'));
     }
 
     /**
@@ -135,8 +137,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $this->expectOutputString("200 User 'phossa'");
         $this->object->dispatchUrl('GET', '/user/phossa');
-        //$res1 = $this->getPrivateProperty('result');
-        $this->assertEquals(Status::OK, $this->object->getResult()->getStatus());
+        $res1 = $this->getPrivateProperty('result');
+        $this->assertEquals(Status::OK, $res1->getStatus());
     }
 
     /**
@@ -144,7 +146,6 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddExtension()
     {
-        /*
         $this->expectOutputString("BEFORE_MATCH(404) BEFORE_COLL(404) AFTER_COLL(200) AFTER_MATCH(200) BEFORE_DISPATCH(200) BEFORE_ROUTE(200) 200 bingo AFTER_ROUTE(200) AFTER_DISPATCH(200) ");
         $ext = new Extension\SampleExtension();
         $this->col->addExtension($ext);
@@ -158,8 +159,6 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $route->addExtension($ext);
         $this->col->addRoute($route);
         $this->object->dispatchUrl('HEAD', '/user/phossa');
-         * 
-         */
     }
 
     /**
@@ -174,8 +173,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         // do match
         $this->expectOutputRegex("~UNKNOWN HANDLER~");
         $this->object->dispatchUrl('GET', '/admin/user/id/1/name/jack');
-        //$res1 = $this->getPrivateProperty('result');
-        $this->assertEquals('jack', $this->object->getResult()->getParameter('name'));
-        $this->assertEquals('1', $this->object->getResult()->getParameter('id'));
+        $res1 = $this->getPrivateProperty('result');
+        $this->assertEquals('jack', $res1->getParameter('name'));
+        $this->assertEquals('1', $res1->getParameter('id'));
     }
 }

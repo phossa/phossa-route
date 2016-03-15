@@ -208,7 +208,7 @@ class Collector extends CollectorAbstract
         RequestInterface $request
     ) {
         foreach ($route->getFilters() as $field => $filter) {
-            list($grpName, $keyName) = explode('.', $field);
+            list($grpName, $keyName) = explode('.', $field, 2);
             switch ($grpName) {
                 case 'session':
                     $against = isset($_SESSION[$keyName]) ?

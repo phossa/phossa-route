@@ -70,10 +70,7 @@ Getting started
   use Phossa\Route\Dispatcher;
 
   // dispatcher with default collector & resolver
-  $dispatcher = new Dispatcher();
-
-  // add routes to the dispatcher
-  $dispatcher
+  $dispatcher = (new Dispatcher())
       ->addGet(
           '/blog/{action:xd}[/{year:d}[/{month:d}[/{date:d}]]]',
           function($result) {
@@ -86,15 +83,15 @@ Getting started
           'handler3',
           ['id' => '1'])); // default $id value
 
-  // route an URL
-  $dispatcher->dispatchUrl('GET', '/blog/list/2016');
+  // route base on info provided by server
+  $dispatcher->dispatch();
   ```
 
 <a name="syntax"></a>Route syntax
 ---
 
-**NOTE:** Support for other route syntax is on the release 1.1.x list. User may
-pick his/her favorite route syntax :).
+**NOTE:** Support for other route library syntax is on the release 1.1.x list.
+User may pick his/her favorite route syntax with phossa-route :).
 
 - **{Named} parameters**
 
@@ -123,7 +120,7 @@ pick his/her favorite route syntax :).
   The previous pattern can be rewritten into,
 
   ```php
-  // with $action & $id two named params
+  // with 'action' & 'id' two named params
   $dispatcher->addGet('/user/{action:xd}/{id:d}', 'handler1');
   ```
 
@@ -148,12 +145,13 @@ pick his/her favorite route syntax :).
     a character. And the use of `{}` inside/outside placeholders may cause
     confusion, thus is not recommended.
 
-  - Use of `[]` outside placeholders is not allowed
+  - `[]` outside placeholder means *OPTIONAL* segment only
 
-    `[]` can not be used outside placeholders, *IF YOU DO NEED* to use them
-    as part of the pattern, please include them *INSIDE* a placeholder.
+    `[]` can not be used outside placeholders as part of a regex pattern, *IF
+    YOU DO NEED* to use them as part of the regex pattern, please include them
+    *INSIDE* a placeholder.
 
-  - Use of `()` inside placeholders is not allowed
+  - Use of capturing groups `()` inside placeholders is not allowed
 
     Capturing groups `()` can not be used inside placeholders. For example
     `{user:(root|phossa)}` is not valid. Instead, you can use either use
@@ -165,24 +163,10 @@ pick his/her favorite route syntax :).
 - **Defining routes with dispatcher**
 
   You may define routes with dispatcher, but it is actually defining routes with
-  the first collector (route collections) in the dispatcher.
-
-- **Defining routes with `Phossa\Route\Collector\CollectorInterface`** classes
-
-  Multiple collectors (route collections) are supported in dispatcher, routes
-  can be are defined with each collector in the dispatcher.
+  the first collector (route collection) in the dispatcher.
 
   ```php
-  use Phossa\Route;
-
-  // create a collector
-  $collector = new Route\Collector\Collector();
-
-  // create the dispatcher and inject the collector
-  $dispatcher = new Route\Dispatcher($collector);
-
-  // define a GET route
-  $collector->addGet($routePattern, $handler, $defaultValues);
+  $dispatcher = (new Dispatcher())->addPost('/blog/post', 'handler2');
   ```
 
   `addGet()` and `addPost()` are wrappers of `addRoute(RouteInterface)`.
@@ -207,6 +191,20 @@ pick his/her favorite route syntax :).
              ->addCollector($collector_blog);
   ```
 
+- **Same route pattern**
+
+  User can define same route pattern with different http methods.
+
+  ```php
+  $dispatcher
+      ->addGet('/user/{$id}', 'handler1')
+      ->addPost('/user/{$id}', 'handler2');
+  ```
+
+  But can not define same route pattern same method with different
+  [filters](#filter). The possible solution is dealing logic in `handler1` or
+  add [extensions](#extension) to the route.
+
 <a name="dispatch"></a>Dispatching
 ---
 
@@ -218,13 +216,14 @@ pick his/her favorite route syntax :).
   // index.php
   // ...
 
-  // dispatch base on request info
+  // dispatch base on server request info
   $dispatcher->dispatch();
   ```
 
-  `dispatch()` takes one optional argument. When none provided, it will collect
-  informations from super globals like `$_SERVER` and `$_REQUEST` and dispatches
-  to the right routine or callable base on route definition.
+  `dispatch()` takes one optional argument `Phossa\Route\Context\ResultInterface`.
+  When none provided, it will collect informations from super globals like
+  `$_SERVER` and `$_REQUEST` and dispatches to the right routine or callable
+  base on route definition.
 
 - **Dispatch an URL**
 
@@ -295,7 +294,6 @@ pick his/her favorite route syntax :).
 
   ```php
   use Phossa\Route\Status;
-  // ...
 
   $dispatcher->addHandler(
       Status::SERVICE_UNAVAILABLE,
@@ -417,7 +415,8 @@ before or after certain dispatching stages.
 
 - **Extension stages**
 
-  Three types of stages, dispatcher level, collector level and route level.
+  Three types of stages, dispatcher level, collector level and route level. List
+  of all stages in the order of execution.
 
   - `Dispatcher::BEFORE_MATCH` before matching starts
 
@@ -430,12 +429,13 @@ before or after certain dispatching stages.
   - `Dispatcher::BEFORE_DISPATCH` after a sucessful match, before dispatching
     to any handler
 
-    - `Route::BEFORE_ROUTE` before executing route or collector handler for
+    - `Route::BEFORE_ROUTE` before executing handler(route's or collector's) for
        this route
 
     - `Route::AFTER_ROUTE` after handler successfully executed
 
-  - `Dispatcher::AFTER_DISPATCH` after handler executed successfully
+  - `Dispatcher::AFTER_DISPATCH` back to dispatcher level, after handler
+    executed successfully
 
   - `Dispatcher::BEFORE_DEFAULT` match failed or no handler found for the
     matching route, before execute dispatcher's default handler
@@ -445,16 +445,41 @@ before or after certain dispatching stages.
 <a name="filter"></a>Filters
 ---
 
-Sometimes, user may want to look at other information before deciding on the
-handler. [Extensions](#extension) is one way of doing this. But `addFilter()`
-of the route object is more appropriate.
+- **Filter usage**
+
+  Sometimes, user may want to look at other information before deciding on how to
+  dispatch. [Extensions](#extension) is one way of doing this. But `addFilter()`
+  of the `$route` object is a more appropriate way at route level.
 
   ```php
   // match against $_SERVER, $_REQUEST, $_SESSION, $_COOKIE etc.
   $route = (new Route('GET', '/user/list/{$id}', 'handler1'))
-      ->addFilter('(m|www).phossa.com', 'server.server_name')
-      ->addFilter('voted', 'cookie.vote_status);
+      ->addFilter('server.server_name', '(m|www).phossa.com')
+      ->addFilter('cookie.vote_status', 'voted');
   ```
+
+  Even closure is supported
+
+  ```php
+  // closure takes the value from $_SERVER['SERVER_NAME'] as input
+  $route->addFilter('server.server_name', function($value) {
+      switch($value) {
+        case 'a1.phossa.com':
+        case 'b2.phossa.com':
+            return true;
+        default:
+            return false; // always return a bool
+      }
+  });
+  ```
+
+- **Difference with extension**
+
+  Filters are used during the matching process, if filtering failed for the
+  route, the matching process will still try the next route.
+
+  While route level extensions are executed after a successful match and just
+  before execution of the handler.
 
 <a name="debug"></a>Debugging
 ---
@@ -466,14 +491,14 @@ Sometimes, you need to know what went wrong.
   ```
 
   Where `$logger` is a PSR-3 compatible logger implmenting the interface
-  `Psr\Log\LoggerInterface`.
+  `Psr\Log\LoggerInterface`. The dispatcher will send logs of dispatching
+  process to the logger.
 
 <a name="strategy"></a>Routing strategies
 ---
 
-There are a couple of URL based routing strategies supported by default in this
-library. Different strategy collectors can be combined together into one
-dispatcher.
+There are a couple of URL based routing strategies supported in this library.
+Different strategy collectors can be combined together into one dispatcher.
 
 - **Query Parameter Routing (QPR)**
 
@@ -488,7 +513,7 @@ dispatcher.
 
 - <a name="ppr"></a>**Parameter Pairs Routing (PPR)**
 
-  Using parameter and value pairs like the following
+  Using parameter and value pairs as follows,
 
   ```
   http://servername/path/index.php/controller/action/id/1/name/nick
@@ -517,15 +542,17 @@ dispatcher.
   library and implemented in `Phossa\Route\Collector\Collector` class.
 
   ```php
-  // created with default RER strategy
+  // created with default RER collector
   $dispatcher = new Dispatcher();
 
-  // need to supprot legacy query parameter routing, after RER
+  // add supprot for legacy query parameter routing
   $dispatcher->addCollector(new CollectorQPR());
   ```
 
 <a name="algorithm"></a>Regex matching algorithms
 ---
+
+Different regex matching algorithms can be used with the RER collector.
 
 - <a name="fastroute"></a>**FastRoute algorithm**
 
@@ -533,7 +560,7 @@ dispatcher.
   `Phossa\Route\Regex\ParserGcb` class and explained in  detail in this article
   ["Fast request routing using regular expressions"](http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html).
 
-  **phossa-route** uses this algorithm by default.
+  phossa-route uses this algorithm by default.
 
 - **Standard algorithm**
 
@@ -552,13 +579,13 @@ dispatcher.
   $dispatcher = new Dispatcher(new Collector(new ParserStd));
   ```
 
-- **Comments on routing algorithm**
+- **Comments on routing algorithms**
 
   - It does **NOT** matter that much as you may think.
 
-    If you are using routing library in your application and not as a
-    standalone router, different algorithms may differ only 0.1 - 0.2ms which
-    seems meaningless for an application.
+    If you are using routing library in your application, different algorithms
+    may differ only 0.1 - 0.2ms for a single request, which seems meaningless
+    for an application unless you are using it as a standalone router.
 
   - If you **DO** care about routing speed
 
@@ -567,8 +594,8 @@ dispatcher.
     carefully design your routes, you may achieve better results even if you
     are using a *slower* algorithm.
 
-  - Try [network routing or server routing](#issue) if you just **CAN NOT HELP
-    IT**.
+  - Try [network routing or server routing](#issue) if you just **CRAZY ABOUT
+    THE SPEED**.
 
 Dependencies
 ---
@@ -576,6 +603,8 @@ Dependencies
 - PHP >= 5.4.0
 
 - phossa/phossa-shared >= 1.0.6
+
+- phossa/phossa-logger >= 1.0.0 if you are using [debugging](#debug)
 
 License
 ---

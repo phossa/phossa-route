@@ -155,7 +155,6 @@ class ParserGcb extends ParserAbstract
      *
      * @return array
      * @access protected
-     * @todo   cache support
      */
     protected function getRegexData()/*# : array */
     {
@@ -242,7 +241,7 @@ class ParserGcb extends ParserAbstract
             Message::DEBUG_MATCH_REGEX,
             $this->regex[$name]
         ));
-        
+
         return [ $name, $res ];
     }
 }

@@ -54,7 +54,7 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     /**
      * Result
      *
-     * @var    Context\Result
+     * @var    Context\ResultInterface
      * @access protected
      */
     protected $result;
@@ -194,9 +194,6 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     {
         // search handler
         $handler = $this->result->getHandler();
-        if (is_null($handler) && ($route = $this->result->getRoute())) {
-            $handler = $route->getHandler($this->result->getStatus());
-        }
 
         if (is_null($handler)) {
             // matched, but no handler found
@@ -205,14 +202,11 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
         } else {
             $callable = $this->resolver->resolve($handler);
 
-            // extension loaded?
-            if (isset($route) && is_object($route) &&
-                $route instanceof Extension\ExtensionAwareInterface &&
-                $route->hasExtension()
-            ) {
+            // extension ?
+            if (($route = $this->result->getRoute()) && $route->hasExtension()) {
                 if ($route->runExtensions(Route::BEFORE_ROUTE, $this->result)) {
                     $callable($this->result);
-                    $route->runExtensions(Route::AFTER_ROUTE,$this->result);
+                    $route->runExtensions(Route::AFTER_ROUTE, $this->result);
                 }
             } else {
                 $callable($this->result);

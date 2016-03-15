@@ -75,7 +75,7 @@ class RedirectToHttpsExtension implements ExtensionInterface
                    ->setParameter(
                         ResultInterface::REDIRECT_URL,
                         $this->url ?: $this->getUrl(
-                           $result->getRequest()->getServerInfo()
+                           (array) $result->getRequest()->getServerInfo()
                         ))
                    ->setHandler(function (ResultInterface $result) {
                         header(

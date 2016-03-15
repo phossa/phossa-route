@@ -26,7 +26,7 @@ use Phossa\Route\Exception\LogicException;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-interface RouteInterface
+interface RouteInterface extends Handler\HandlerAwareInterface
 {
     /**
      * Set $_SERVER['PATH_INFO'] matching pattern

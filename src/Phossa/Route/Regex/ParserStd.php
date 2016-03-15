@@ -133,7 +133,6 @@ class ParserStd extends ParserAbstract
      *
      * @return array
      * @access protected
-     * @todo   cache support
      */
     protected function getRegexData()/*# : array */
     {

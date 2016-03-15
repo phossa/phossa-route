@@ -76,9 +76,7 @@ class CollectorPPR extends CollectorAbstract
 
             $params = [];
             foreach ($parts as $i => $val) {
-                if ($i % 2) {
-                    // skip this
-                } else {
+                if (0 === $i % 2) {
                     $params[$val] = $parts[$i + 1];
                 }
             }

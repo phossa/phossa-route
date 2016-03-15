@@ -22,6 +22,7 @@ use Phossa\Route\Regex\ParserGcb;
 use Phossa\Route\Regex\ParserInterface;
 use Phossa\Route\Context\ResultInterface;
 use Phossa\Route\Exception\LogicException;
+use Phossa\Route\Debug\DebuggableInterface;
 
 /**
  * Collector
@@ -190,6 +191,7 @@ class Collector extends CollectorAbstract
 
         // set status & handler
         $result->setStatus(Status::OK);
+        $result->setHandler($route->getHandler(Status::OK));
 
         return true;
     }

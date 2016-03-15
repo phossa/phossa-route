@@ -40,7 +40,7 @@ class Result implements ResultInterface
     /**
      * parameters
      *
-     * @var    string[]
+     * @var    array
      * @access protected
      */
     protected $parameters = [];
@@ -79,7 +79,7 @@ class Result implements ResultInterface
     public function __construct(RequestInterface $request)
     {
         $this->request = $request;
-        $this->setParameter($request->getRequestInfo());
+        $this->setParameter((array) $request->getRequestInfo());
     }
 
     /**

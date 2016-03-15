@@ -27,7 +27,7 @@ use Phossa\Route\Exception\LogicException;
  * @version 1.0.0
  * @since   1.0.0 added
  */
-class Route implements RouteInterface, Handler\HandlerAwareInterface, Extension\ExtensionAwareInterface
+class Route implements RouteInterface, Extension\ExtensionAwareInterface
 {
     use Handler\HandlerAwareTrait,
         Extension\ExtensionAwareTrait;
@@ -71,7 +71,7 @@ class Route implements RouteInterface, Handler\HandlerAwareInterface, Extension\
     /**
      * default values for placeholders in the pattern
      *
-     * @var    string[]
+     * @var    array
      * @access protected
      */
     protected $defaults = [];

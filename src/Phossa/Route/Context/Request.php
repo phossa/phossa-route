@@ -29,7 +29,7 @@ class Request implements RequestInterface
     /**
      * server info from $_SERVER
      *
-     * @var    string[]
+     * @var    array
      * @access protected
      */
     protected $server = [];
@@ -37,7 +37,7 @@ class Request implements RequestInterface
     /**
      * request info from $_REQUEST
      *
-     * @var    string[]
+     * @var    array
      * @access protected
      */
     protected $request = [];
@@ -62,7 +62,8 @@ class Request implements RequestInterface
      */
     public function getHttpMethod()/*# : string */
     {
-        return $this->getInfo('request_method', 'server');
+        $method = (string) $this->getInfo('request_method', 'server');
+        return $method ?: 'GET';
     }
 
     /**
@@ -70,7 +71,7 @@ class Request implements RequestInterface
      */
     public function getPathInfo()/*# : string */
     {
-        return $this->getInfo('path_info', 'server');
+        return (string) $this->getInfo('path_info', 'server');
     }
 
     /**
@@ -120,7 +121,6 @@ class Request implements RequestInterface
      *
      * @param  string $httpMethod HTTP method
      * @param  string $url URL
-     * @param  array $requestData simulate post data etc.
      * @return status
      * @access protected
      */
@@ -142,7 +142,7 @@ class Request implements RequestInterface
         if (empty($url)) {
             $this->request = $_REQUEST;
         } else {
-            $parts = parse_url($url);
+            $parts = (array) parse_url($url);
 
             // scheme
             if (isset($parts['scheme'])) {

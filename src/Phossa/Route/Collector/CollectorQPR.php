@@ -105,9 +105,7 @@ class CollectorQPR extends CollectorAbstract
 
             $newparam = [];
             foreach ($parts as $i => $val) {
-                if ($i % 2) {
-                    // skip this
-                } else {
+                if (0 === $i % 2) {
                     $newparam[$val] = $parts[$i + 1];
                 }
             }

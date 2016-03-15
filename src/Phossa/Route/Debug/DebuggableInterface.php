@@ -53,7 +53,7 @@ interface DebuggableInterface
      *
      * @return bool
      * @access public
-     * @api
+     * @internal
      */
     public function getDebugMode()/*# : bool */;
 
@@ -63,7 +63,7 @@ interface DebuggableInterface
      * @param  string $message message to send out
      * @return static
      * @access public
-     * @api
+     * @internal
      */
     public function debug(/*# string */ $message);
 
@@ -73,7 +73,7 @@ interface DebuggableInterface
      * @param  string $message message to send out
      * @return static
      * @access public
-     * @api
+     * @internal
      */
     public function info(/*# string */ $message);
 }

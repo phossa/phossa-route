@@ -15,6 +15,7 @@
 
 namespace Phossa\Route;
 
+use Phossa\Route\Message\Message;
 use Phossa\Route\Context\ResultInterface;
 use Phossa\Route\Collector\CollectorInterface;
 
@@ -38,17 +39,27 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     /**#@+
      * Dispatcher related extension stages
      *
-     * BEFORE_MATCH: before matching begins
-     * BEFORE_DISPATCH: before executing handler
-     * AFTER_MATCH: after successful matching a route
-     * AFTER_DISPATCH: after handler executed
-     *
      * @const
      */
+
+    // before any matching starts
     const BEFORE_MATCH      = 'BEFORE_MATCH';
+
+    // after a successful matching
     const AFTER_MATCH       = 'AFTER_MATCH';
+
+    // after a successful matching, before execute handler
     const BEFORE_DISPATCH   = 'BEFORE_DISPATCH';
+
+    // after handler executed successfully
     const AFTER_DISPATCH    = 'AFTER_DISPATCH';
+
+    // before execute dispatcher's default handler
+    const BEFORE_DEFAULT    = 'BEFORE_DEFAULT';
+
+    // after dispatcher's default handler executed
+    const AFTER_DEFAULT     = 'AFTER_DEFAULT';
+
     /**#@-*/
 
     /**
@@ -244,8 +255,7 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
 
         if (is_null($handler)) {
             // matched, but no handler found
-            $this->defaultHandler();
-            return false;
+            return $this->defaultHandler();
         } else {
             $callable = $this->resolver->resolve($handler);
 
@@ -265,16 +275,20 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     /**
      * Execute dispatcher's default handler
      *
-     * @return void
+     * @return false
      * @access protected
      */
     protected function defaultHandler()
     {
-        $status = $this->result->getStatus();
-        if (($handler = $this->getHandler($status))) {
-            $handler($this->result);
-        } else {
-            echo sprintf("%d, YOU NEED A REAL HANDLER!", $status);
+        if ($this->runExtensions(self::BEFORE_DEFAULT, $this->result)) {
+            $status = $this->result->getStatus();
+            if (($handler = $this->getHandler($status))) {
+                $handler($this->result);
+            } else {
+                echo Message::get(Message::DEBUG_NEED_HANDLER, $status);
+            }
+            $this->runExtensions(self::AFTER_DEFAULT, $this->result);
         }
+        return false;
     }
 }

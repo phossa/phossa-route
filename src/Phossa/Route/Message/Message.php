@@ -102,6 +102,11 @@ class Message extends MessageAbstract
      */
     const DEBUG_ADD_HANDLER     = 1603111816;
 
+    /**
+     * Need a default handler for status %s
+     */
+    const DEBUG_NEED_HANDLER    = 1603111817;
+
     /**#@-*/
 
     /**
@@ -122,5 +127,6 @@ class Message extends MessageAbstract
         self::DEBUG_PARSE_PATTERN   => 'Parse pattern "%s" into "%s"',
         self::DEBUG_MATCH_REGEX     => 'Matched with regex "%s"',
         self::DEBUG_ADD_HANDLER     => 'Add handler "%s" to "%s"',
+        self::DEBUG_NEED_HANDLER    => 'Need a default handler for status %s',
     ];
 }

@@ -18,6 +18,7 @@ namespace Phossa\Route;
 /**
  * Container for status code
  *
+ * @static
  * @package Phossa\Route
  * @author  Hong Zhang <phossa@126.com>
  * @version 1.0.0
@@ -25,6 +26,8 @@ namespace Phossa\Route;
  */
 class Status
 {
+    use \Phossa\Shared\Pattern\StaticTrait;
+
     /**#@+
      * Routing result code (similar to HTTP codes)
      *

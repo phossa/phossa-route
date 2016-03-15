@@ -35,7 +35,7 @@ interface ParserInterface
      * @param  string $pattern pattern to parse
      * @return string
      * @access public
-     * @api
+     * @internal
      */
     public function parse(
         /*# string */ $name,
@@ -48,7 +48,7 @@ interface ParserInterface
      * @param  string $url
      * @return array|false [ $name, $matched ] or false
      * @access public
-     * @api
+     * @internal
      */
     public function match(/*# string */ $url);
 }

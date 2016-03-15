@@ -120,8 +120,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddFilter()
     {
-        $this->object->addFilter('m.phossa.com', 'server_name');
-        $this->assertArrayHasKey('server_name', $this->object->getFilters());
+        $this->object->addFilter('server.server_name', 'm.phossa.com');
+        $this->assertArrayHasKey('server.server_name', $this->object->getFilters());
     }
 
     /**
@@ -130,8 +130,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testGetFilters()
     {
         $this->assertTrue([] == $this->object->getFilters());
-        $this->object->addFilter('m.phossa.com', 'server_name');
-        $this->assertEquals(['server_name' => 'm.phossa.com'],
+        $this->object->addFilter('server.server_name', 'm.phossa.com');
+        $this->assertEquals(['server.server_name' => 'm.phossa.com'],
             $this->object->getFilters());
     }
 

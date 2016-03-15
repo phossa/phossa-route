@@ -28,15 +28,6 @@ use Phossa\Route\RouteInterface;
  */
 interface ResultInterface
 {
-    /**#@+
-     * Predefined parameter keys
-     *
-     * @const
-     */
-    const REDIRECT_URL          = '__redirect_url__';
-
-    /**#@-*/
-
     /**
      * Get status code
      *
@@ -101,7 +92,7 @@ interface ResultInterface
      *
      * @return callable|array
      * @access public
-     * @api
+     * @internal
      */
     public function getHandler();
 
@@ -111,7 +102,7 @@ interface ResultInterface
      * @param  RouteInterface $route
      * @return static
      * @access public
-     * @api
+     * @internal
      */
     public function setRoute(RouteInterface $route);
 
@@ -120,7 +111,7 @@ interface ResultInterface
      *
      * @return RouteInterface
      * @access public
-     * @api
+     * @internal
      */
     public function getRoute()/*# : RouteInterface */;
 }

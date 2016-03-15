@@ -37,7 +37,7 @@ interface ResolverInterface
      * @return callable
      * @throws LogicException if resolving failed
      * @access public
-     * @api
+     * @internal
      */
     public function resolve($handler)/*# : callable */;
 }

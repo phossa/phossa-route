@@ -438,7 +438,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
     public function testMatch5()
     {
         $route = new Route('GET,POST', '/user[/{name:c}]');
-        $route->addFilter('m.phossa.com', 'server_name');
+        $route->addFilter('server.server_name', 'm.phossa.com');
         $this->object->addRoute($route);
 
         // failed
@@ -472,7 +472,7 @@ class CollectorTest extends \PHPUnit_Framework_TestCase
 
         unset($_SERVER['SERVER_NAME']);
         $route = new Route('GET,POST', '/user[/{name:c}]');
-        $route->addFilter('m.phossa.com', 'server_name');
+        $route->addFilter('server.server_name', 'm.phossa.com');
         $this->object->addRoute($route);
 
         // failed

@@ -53,7 +53,7 @@ interface ExtensionAwareInterface
      * @param  string $stage stage to process
      * @return bool
      * @access public
-     * @api
+     * @internal
      */
     public function hasExtension(/*# string */ $stage = '')/*# : bool */;
 
@@ -64,7 +64,7 @@ interface ExtensionAwareInterface
      * @param  ResultInterface $result matching result object
      * @return bool
      * @access public
-     * @api
+     * @internal
      */
     public function runExtensions(
         /*# string */ $stage,

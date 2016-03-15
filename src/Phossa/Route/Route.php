@@ -16,7 +16,6 @@
 namespace Phossa\Route;
 
 use Phossa\Route\Message\Message;
-use Phossa\Route\Context\ResultInterface;
 use Phossa\Route\Exception\LogicException;
 
 /**
@@ -150,9 +149,9 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     /**
      * @inheritDoc
      */
-    public function addFilter(/*# string */ $filter, /*# string */ $field)
+    public function addFilter(/*# string */ $field, $filter)
     {
-        $this->filters[(string) $field] = (string) $filter;
+        $this->filters[(string) $field] = $filter;
         return $this;
     }
 

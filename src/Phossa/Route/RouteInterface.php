@@ -35,7 +35,7 @@ interface RouteInterface extends Handler\HandlerAwareInterface
      * @return static
      * @throws LogicException if pattern malformed
      * @access public
-     * @api
+     * @internal
      */
     public function setPattern(/*# string */ $pattern = '');
 
@@ -54,7 +54,7 @@ interface RouteInterface extends Handler\HandlerAwareInterface
      * @param  string $methods method to match
      * @return static
      * @access public
-     * @api
+     * @internal
      */
     public function setMethods(/*# string */ $methods);
 
@@ -73,23 +73,23 @@ interface RouteInterface extends Handler\HandlerAwareInterface
      * User can match $_SERVER['SERVER_NAME'] field by
      *
      * ```php
-     * $route->addFilter('(m|www).phossa.com', 'server_name');
+     * $route->addFilter('server.server_name', '(m|www).phossa.com');
      * ```
      *
-     * @param  string $filter pattern to filter with
-     * @param  string $field  $request field like 'server_name'
+     * @param  string $field something like 'server.server_name'
+     * @param  string|callable $filter regex pattern or callable
      * @return static
      * @access public
      * @api
      */
-    public function addFilter(/*# string */ $filter, /*# string */ $field);
+    public function addFilter(/*# string */ $field, $filter);
 
     /**
      * Get all filters
      *
      * @return array
      * @access public
-     * @api
+     * @internal
      */
     public function getFilters()/*# : array */;
 
@@ -99,7 +99,7 @@ interface RouteInterface extends Handler\HandlerAwareInterface
      * @param  array $values default values
      * @return static
      * @access public
-     * @api
+     * @internal
      */
     public function setDefault(array $values);
 
@@ -108,7 +108,7 @@ interface RouteInterface extends Handler\HandlerAwareInterface
      *
      * @return array
      * @access public
-     * @api
+     * @internal
      */
     public function getDefault()/*# : array */;
 }

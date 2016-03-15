@@ -43,7 +43,7 @@ interface HandlerAwareInterface
      * @param  int $status result status code
      * @return callable|null
      * @access public
-     * @api
+     * @internal
      */
     public function getHandler(/*# int */ $status);
 }

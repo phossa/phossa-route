@@ -21,6 +21,7 @@ use Phossa\Route\Message\Message;
 use Phossa\Route\Regex\ParserGcb;
 use Phossa\Route\Regex\ParserInterface;
 use Phossa\Route\Context\ResultInterface;
+use Phossa\Route\Context\RequestInterface;
 use Phossa\Route\Exception\LogicException;
 use Phossa\Route\Debug\DebuggableInterface;
 
@@ -173,16 +174,11 @@ class Collector extends CollectorAbstract
         $route = $this->routes[$routeKey][$method];
 
         // apply others filters
-        foreach ($route->getFilters() as $field => $pattern) {
-            if (!preg_match(
-                '~'.$pattern.'~x',
-                $request->getServerInfo($field)
-            )) {
-                $status = Status::PRECONDITION_FAILED;
-                $result->setStatus($status)
-                       ->setHandler($route->getHandler($status));
-                return false;
-            }
+        if (!$this->filtering($route, $request)) {
+            $status = Status::PRECONDITION_FAILED;
+            $result->setStatus($status)
+                   ->setHandler($route->getHandler($status));
+            return false;
         }
 
         // remember the route
@@ -196,6 +192,45 @@ class Collector extends CollectorAbstract
         $result->setStatus($status)
                ->setHandler($route->getHandler(Status::OK));
 
+        return true;
+    }
+
+    /**
+     * Filtering in route
+     *
+     * @param  RouteInterface $route
+     * @param  RequestInterface $request
+     * @return bool
+     * @access protected
+     */
+    protected function filtering(
+        RouteInterface $route,
+        RequestInterface $request
+    ) {
+        foreach ($route->getFilters() as $field => $filter) {
+            list($grpName, $keyName) = explode('.', $field);
+            switch ($grpName) {
+                case 'session':
+                    $against = isset($_SESSION[$keyName]) ?
+                        $_SESSION[$keyName] : '';
+                case 'cookie':
+                    $against = isset($_COOKIE[$keyName]) ?
+                        $_COOKIE[$keyName] : '';
+                    break;
+                case 'request':
+                    $against = $request->getRequestInfo($keyName);
+                    break;
+                default:
+                    $against = $request->getServerInfo($keyName);
+                    break;
+            }
+
+            if (is_callable($filter)) {
+                return $filter((string) $against);
+            } elseif (!preg_match('~'.$filter.'~x', (string) $against)) {
+                return false;
+            }
+        }
         return true;
     }
 }

@@ -37,6 +37,8 @@ Why another routing library ?
 
 - Fine control of routing process by [multiple level of extensions](#extension).
 
+- [Filtering](#filter) request's other fields during the matching
+
 - Route and regex [debugging](#debug).
 
 - Dependency injection ready. Support third-party Di libraries.
@@ -67,10 +69,10 @@ Getting started
   ```php
   use Phossa\Route\Dispatcher;
 
-  // route dispatcher
+  // dispatcher with default collector & resolver
   $dispatcher = new Dispatcher();
 
-  // add routes
+  // add routes to the dispatcher
   $dispatcher
       ->addGet(
           '/blog/{action:xd}[/{year:d}[/{month:d}[/{date:d}]]]',
@@ -79,22 +81,20 @@ Getting started
           })
       ->addPost('/blog/post', 'handler2')
       ->addRoute(new Route\Route(
-          'GET,HEAD', // support multiple methods
+          'GET,HEAD', // multiple methods
           '/blog/read[/{id:d}]',
           'handler3',
           ['id' => '1'])); // default $id value
 
-  // route thru first collector
+  // route an URL
   $dispatcher->dispatchUrl('GET', '/blog/list/2016');
   ```
 
 <a name="syntax"></a>Route syntax
 ---
 
-- **Note**
-
-  Support for other route syntax is on the release 1.1.x list. User may pick
-  their favorite route syntax :).
+**NOTE:** Support for other route syntax is on the release 1.1.x list. User may
+pick his/her favorite route syntax :).
 
 - **{Named} parameters**
 
@@ -104,8 +104,8 @@ Getting started
   `{foo:[0-9]+}`.
 
   ```php
-  // with $action & $id two named params
-  $pattern = '/user/{action:[^0-9/][^/]*}/{id:[0-9]+}';
+  // with 'action' & 'id' two named params
+  $dispatcher->addGet('/user/{action:[^0-9/][^/]*}/{id:[0-9]+}', 'handler1');
   ```
 
   Predefined shortcuts can be used for placeholders as follows,
@@ -124,12 +124,12 @@ Getting started
 
   ```php
   // with $action & $id two named params
-  $pattern = '/user/{action:xd}/{id:d}';
+  $dispatcher->addGet('/user/{action:xd}/{id:d}', 'handler1');
   ```
 
 - **[Optional] segments**
 
-  Optional segments in the route can be specified with `[]` as follows,
+  Optional segments in the route pattern can be specified with `[]` as follows,
 
   ```php
   // $action, $year/$month/$date are all optional
@@ -151,7 +151,7 @@ Getting started
   - Use of `[]` outside placeholders is not allowed
 
     `[]` can not be used outside placeholders, *IF YOU DO NEED* to use them
-    as part of the pattern, please include them INSIDE a placeholder.
+    as part of the pattern, please include them *INSIDE* a placeholder.
 
   - Use of `()` inside placeholders is not allowed
 
@@ -159,7 +159,7 @@ Getting started
     `{user:(root|phossa)}` is not valid. Instead, you can use either use
     `{user:root|phossa}` or `{user:(?:root|phossa)}`.
 
-<a name="routes"></a>Defining routes
+<a name="routes"></a>Routes
 ---
 
 - **Defining routes with dispatcher**
@@ -167,10 +167,10 @@ Getting started
   You may define routes with dispatcher, but it is actually defining routes with
   the first collector (route collections) in the dispatcher.
 
-- **Defining routes with `Phossa\Route\Collector\CollectorInterface`**
+- **Defining routes with `Phossa\Route\Collector\CollectorInterface`** classes
 
   Multiple collectors (route collections) are supported in dispatcher, routes
-  are actually defined with each collector.
+  can be are defined with each collector in the dispatcher.
 
   ```php
   use Phossa\Route;
@@ -183,14 +183,6 @@ Getting started
 
   // define a GET route
   $collector->addGet($routePattern, $handler, $defaultValues);
-
-  // define a POST route
-  $collector->addPost($routePattern, $handler, $defaultValues);
-
-  // multiple methods wanted
-  $collector->addRoute(new Phossa\Route\Route(
-      'GET,HEAD', $routePattern, $handler, $defaultValues
-  ));
   ```
 
   `addGet()` and `addPost()` are wrappers of `addRoute(RouteInterface)`.
@@ -218,7 +210,7 @@ Getting started
 <a name="dispatch"></a>Dispatching
 ---
 
-- **Dispatch with `dispatch()`**
+- **Dispatch with dispatcher's `dispatch()`**
 
   In the script `index.php`, the `dispatch()` is normally the last line.
 
@@ -234,9 +226,9 @@ Getting started
   informations from super globals like `$_SERVER` and `$_REQUEST` and dispatches
   to the right routine or callable base on route definition.
 
-- **Dispatch with an Url**
+- **Dispatch an URL**
 
-  User may dispatch to a new url,
+  User may dispatch an URL,
 
   ```php
   $dispatcher->dispatchUrl('GET', '/error404');
@@ -270,63 +262,64 @@ Getting started
 
   `matchUrl()` is also provided.
 
-<a name="handler"></a>Handlers and default handlers
+<a name="handler"></a>Handlers
 ---
 
 - **Multiple handlers**
 
-  Routes are defined with one handler for status `200 OK`. Multiple handlers
-  are supported other result status.
+  Route is defined with one handler for status `200 OK`. Multiple handlers are
+  supported for other result status.
 
   ```php
   use Phossa\Route\Route;
   use Phossa\Route\Status;
 
   $route = (new Route('GET', '/user/{action:xd}/{id:d}',
-              // handler for Status::OK
-              function($result) {
-                  $user_id = $result->getParameter('id');
-                  // ...
-              }
-          )
-          // add handler for METHOD_NOT_ALLOWED
-          ->addHandler(Status::METHOD_NOT_ALLOWED, 'handler1');
+      function($result) { // handler for Status::OK
+          $user_id = $result->getParameter('id');
+          // ...
+      })->addHandler(Status::METHOD_NOT_ALLOWED, 'handler1'); // extra handler
   ```
 
   Handler `handler1` will be executed if route is matched but method is not
-  right.
+  valid.
 
 - **<a name="default"></a>Default handlers**
 
   Dispatcher and collectors can have multiple handlers corresponding to
   different status. If the result has no handler set, then the collector's
-  same status handler will be retrieved. If still no luck, the dispatcher's
-  same status handler will be used.
+  handler(same status code) will be retrieved. If still no luck, the
+  dispatcher's handler (same status code) will be used if defined.
 
-  Dispatcher level handlers,
+  Dispatcher-level handlers,
 
   ```php
   use Phossa\Route\Status;
   // ...
 
-  $dispatcher
-      ->addHandler(
-            Status::MOVED_PERMANENTLY, function($result) {
-            // ...
-        })
-      ->addHandler(
-            Status::SERVICE_UNAVAILABLE, function($result) {
-            // ...
-        });
-      // ...
+  $dispatcher->addHandler(
+      Status::SERVICE_UNAVAILABLE,
+      function($result) {
+          // ...
+      }
+  );
   ```
 
-  Same thing applies to the collectors.
+  Collector-level handlers,
+
+  ```php
+  $collector->addHandler(
+      Status::MOVED_PERMANENTLY,
+      function($result) {
+          // ...
+      }
+  );
+  ```
 
 - **Handler resolving**
 
   Most of the time, routes returns a handler like `[ 'className', 'method' ]`.
-  Handler resolver can be used to resolving this pseudo handler into real
+  Handler resolver can be used to resolving this pseudo handler into a real
   callable.
 
   ```php
@@ -339,20 +332,20 @@ Getting started
   );
   ```
 
-  Users may write their own handler resolver by extending `ResolverAbstract`
-  class.
+  Users may write their own handler resolver by extending
+  `Phossa\Route\Handler\ResolverAbstract` class.
 
 <a name="extension"></a>Extensions
 ---
 
-  Extensions are executables dealing with the matching result before or after
-  certain stages.
+Extensions are executables dealing with the matching result or other tasks
+before or after certain dispatching stages.
 
 - **Use of extensions**
 
   Extensions **MUST** return a boolean value to indicate wether to proceed with
-  the dispatching process or not. `FALSE` means stop current stage and returns
-  to top level (the dispatcher level).
+  the dispatching process or not. `FALSE` means stop and returns to top level,
+  the dispatcher level.
 
   ```php
   use Phossa\Route\Dispatcher
@@ -365,21 +358,19 @@ Getting started
   dispatcher->addExtension(new RedirectToHttpsExtension());
   ```
 
-  Forcing authentication for any '/user' prefixed URL,
+  Force authentication for any '/user' prefixed URL,
 
   ```php
   $dispatcher->addExtension(
-      // closure as extension
       function($result) {
           $pattern = $result->getRequest()->getPattern();
           if ('/user' == substr($pattern, 0, 5) && !isset($_SESSION['auth'])) {
               $result->setStatus(Status::UNAUTHORIZED);
               return false; // return to dispatcher level
           }
-          return true;
+          return true; // authed or not in /user
       },
-      // dispatching stage
-      Dispatcher::BEFORE_MATCH
+      Dispatcher::BEFORE_MATCH // run this extension before matching
   );
 
   // set default auth handler at dispatcher level
@@ -390,43 +381,99 @@ Getting started
       }
   );
   ```
+- **Examples of extension**
 
-- **Three level of extensions**
+  Validation of a parameter value,
 
-  - Dispatcher level stages
+  ```php
+  $route->addExtension(
+      function($result) {
+          $id = (int) $result->getParameter('id');
+          if ($id > 1000) { // not allowed
+              $result->setStatus(Status::PRECONDITION_FAILED);
+              return false;
+          }
+          return true;
+      },
+      Route::BEFORE_ROUTE // before execute route handler
+  );
+  ```
 
-    - `Dispatcher::BEFORE_MATCH`
+  Statistics for a route collection
 
-      Just before the matching process.
+  ```php
+  $collector->addExtension(
+      function($result) {
+          // collect statistics
+      },
+      Collector::BEFORE_COLL // before collector match
+  )->addExtension(
+      function($result) {
+          // collect statistics
+      },
+      Collector::AFTER_COLL // after a successful match
+  );
+  ```
 
-    - `Dispatcher::AFTER_MATCH`
+- **Extension stages**
 
-      After a successful match.
+  Three types of stages, dispatcher level, collector level and route level.
 
-    - `Dispatcher::BEFORE_DISPATCH`
+  - `Dispatcher::BEFORE_MATCH` before matching starts
 
-      After sucessful match, before executing the handler.
+    - `Collector::BEFORE_COLL` before matching in a collector
 
-    - `Dispatcher::AFTER_DISPATCH`
+    - `Collector::AFTER_COLL` after a successful match in the collector
 
-      After handler executed sucessfully.
+  - `Dispatcher::AFTER_MATCH` after a successful match at dispatcher level
 
-<a name="debug"></a>Route and Regex debugging
+  - `Dispatcher::BEFORE_DISPATCH` after a sucessful match, before dispatching
+    to any handler
+
+    - `Route::BEFORE_ROUTE` before executing route or collector handler for
+       this route
+
+    - `Route::AFTER_ROUTE` after handler successfully executed
+
+  - `Dispatcher::AFTER_DISPATCH` after handler executed successfully
+
+  - `Dispatcher::BEFORE_DEFAULT` match failed or no handler found for the
+    matching route, before execute dispatcher's default handler
+
+  - `Dispatcher::AFTER_DEFAULT` after dispatcher's default handler executed
+
+<a name="filter"></a>Filters
 ---
 
-  Sometimes, you just need to know what is going wrong.
+Sometimes, user may want to look at other information before deciding on the
+handler. [Extensions](#extension) is one way of doing this. But `addFilter()`
+of the route object is more appropriate.
+
+  ```php
+  // match against $_SERVER, $_REQUEST, $_SESSION, $_COOKIE etc.
+  $route = (new Route('GET', '/user/list/{$id}', 'handler1'))
+      ->addFilter('(m|www).phossa.com', 'server.server_name')
+      ->addFilter('voted', 'cookie.vote_status);
+  ```
+
+<a name="debug"></a>Debugging
+---
+
+Sometimes, you need to know what went wrong.
 
   ```php
   $dispatcher->setDebugMode(true)->setDebugger($logger);
   ```
 
-  Where `$logger` is a `Psr\Log\LoggerInterface` PSR-3 compatible logger.
+  Where `$logger` is a PSR-3 compatible logger implmenting the interface
+  `Psr\Log\LoggerInterface`.
 
 <a name="strategy"></a>Routing strategies
 ---
 
 There are a couple of URL based routing strategies supported by default in this
-library. Different strategies can be combined together into one dispatcher.
+library. Different strategy collectors can be combined together into one
+dispatcher.
 
 - **Query Parameter Routing (QPR)**
 
@@ -448,8 +495,8 @@ library. Different strategies can be combined together into one dispatcher.
   ```
 
   Parameters order can be arbitary, but have to appear in pairs. Advantage of
-  this scheme is fast, web crawler friendly and easy for static file caching.
-  If URL rewriting is used, the above can be written into the following,
+  this scheme is fast and web crawler friendly. If URL rewriting is used, the
+  above can be written into the following,
 
   ```
   http://servername/path/controller/action/id/1/name/nick
@@ -466,23 +513,16 @@ library. Different strategies can be combined together into one dispatcher.
 
 - **Regular Expression Routing (RER)**
 
-  Regular expression based routing. Pattern
+  Regular expression based routing is the default routing strategy for this
+  library and implemented in `Phossa\Route\Collector\Collector` class.
 
+  ```php
+  // created with default RER strategy
+  $dispatcher = new Dispatcher();
+
+  // need to supprot legacy query parameter routing, after RER
+  $dispatcher->addCollector(new CollectorQPR());
   ```
-  $pattern = '/user/{method}[/{id:\d+}[/{name}]]';
-  ```
-
-  To match the following urls,
-
-  ```
-  // user id provided
-  http://servername/path/user/list/20162
-
-  // user id & name
-  http://servername/path/user/list/20162/phossa
-  ```
-
-  **RER** is implemented `Phossa\Route\Collector\Collector` class.
 
 <a name="algorithm"></a>Regex matching algorithms
 ---
@@ -491,7 +531,7 @@ library. Different strategies can be combined together into one dispatcher.
 
   This *Group Count Based algorithm* is implemented in
   `Phossa\Route\Regex\ParserGcb` class and explained in  detail in this article
-  "Fast request routing using regular expressions" (http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html).
+  ["Fast request routing using regular expressions"](http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html).
 
   **phossa-route** uses this algorithm by default.
 
@@ -501,12 +541,24 @@ library. Different strategies can be combined together into one dispatcher.
   fastRoute GCB algorithm. It is implemented in `Phossa\Route\Regex\ParserStd`
   class.
 
+  Use this standard algorithm,
+
+  ```php
+  use Phossa\Route\Dispatcher;
+  use Phossa\Route\Regex\ParserStd;
+  use Phossa\Route\Collector\Collector;
+
+  // use standard algorithm
+  $dispatcher = new Dispatcher(new Collector(new ParserStd));
+  ```
+
 - **Comments on routing algorithm**
 
   - It does **NOT** matter that much as you may think.
 
-    If you are using routing library in your application, different algorithms
-    may differ only 0.1 - 0.2ms which is meaningless for a big application.
+    If you are using routing library in your application and not as a
+    standalone router, different algorithms may differ only 0.1 - 0.2ms which
+    seems meaningless for an application.
 
   - If you **DO** care about routing speed
 
@@ -517,86 +569,6 @@ library. Different strategies can be combined together into one dispatcher.
 
   - Try [network routing or server routing](#issue) if you just **CAN NOT HELP
     IT**.
-
-- **App routing & utilities**
-
-  - *Routing*
-
-    - Pick a right handler
-
-      The core target of app routing library is to pick a right handler for the
-      given URL or other infomations.
-
-    - Pick a right host
-
-      Sometimes, redirecting is wanted. For example, redirecting to a mobile
-      content server or a secure (https) server.
-
-  - *Routing utilities*
-
-    - Parse input parameters
-
-      Usually, the by-product of URL matching is to parse input parameters and
-      pass over to the handler.
-
-    - Parameter validations
-
-      Usually this is done in the handler but can be extracted out to do some
-      common and simple validations.
-
-    - Execution of common routines
-
-      Some URLs can be configured to execute some routines, such as
-      authentication routine, before handling control over to the handler.
-
-Public APIs
---
-- `Phossa\Route\RouteCollector` APIs
-
-  - `__construt(RouteInterpolator, HandlerResolver $handlerResolver = null)`
-
-  - `addRoute(string|callable $pattern, string|callable $methodOrCallable = 'GET,HEAD', array $defauls = []): this`
-
-    Add one route to the collector.
-
-    If `$pattern` is a string, it will be interpreted as a pattern to match
-    against `$_SERVER['PATH_INFO']`. If it is a callable, the signature is
-    `function(Request|string $requestOrUri): bool {}`.
-
-    The last parameter specifies the HTTP method in upper case, either 'GET',
-    'POST' or 'GET,POST' etc. If it is a callable, then it will be executed
-    and the signature is `function(Request $request): bool {}`.
-
-  - `loadData(array|string $fileOrArray): array`
-
-    Load the routes data.
-
-  - `getData(): array`
-
-    Get the routes data.
-
-- `Phossa\Route\Dispatcher` APIs
-
-  - `__construt(array $routeData)`
-
-    Instantiation of the dispatcher with one `RouteCollector`.
-
-    ```php
-    $dispatcher = new Dispatcher(
-        (new RouteCollector)
-            ->addRoute('user', '/user')
-            ->addRoute('post', '/posts/[id:\d+]')
-            ->getData()
-    );
-    ```
-
-  - `match(string|Request $uriOriRequest, string $httpMethod = 'GET,HEAD'): array`
-
-    Match base on request object or given uri. Returns result array
-
-  - `dispatch(string|Request $uriOrRequest, string $httpMethod = 'GET,HEAD'): static`
-
-    Match and dispatch the result array to corresponding handler.
 
 Dependencies
 ---
@@ -625,6 +597,8 @@ Appendix
     results pruned, and then averaged. Values that fall outside of 3 standard
     deviations of the mean are discarded.
 
+    ["Parameter Pairs Routing (PPR)"](#ppr) is fastest and used as baseline.
+
     Test Name | Results | Time | + Interval | Change
     --------- | ------- | ---- | ---------- | ------
     Phossa PPR - unknown route (1000 routes) | 998 | 0.0000724551 | +0.0000000000 | baseline
@@ -650,6 +624,9 @@ Appendix
     This benchmark consists of 7 tests. Each test is executed 1,000 times, the
     results pruned, and then averaged. Values that fall outside of 3 standard
     deviations of the mean are discarded.
+
+    **Note** Both *FastRoute* and *Phroute* implement a static route table, so
+    they are fast at the first route matching (which is a static route)
 
     Test Name | Results | Time | + Interval | Change
     --------- | ------- | ---- | ---------- | ------

@@ -73,14 +73,14 @@ class RedirectToHttpsExtension implements ExtensionInterface
         if (!$result->getRequest()->getServerInfo('https') && $stage) {
             $result->setStatus(Status::MOVED_PERMANENTLY)
                    ->setParameter(
-                        ResultInterface::REDIRECT_URL,
+                        '__REDIRECT_URL__',
                         $this->url ?: $this->getUrl(
                            (array) $result->getRequest()->getServerInfo()
                         ))
                    ->setHandler(function (ResultInterface $result) {
                         header(
                             "Location: ".
-                            $result->getParameter(ResultInterface::REDIRECT_URL),
+                            $result->getParameter('__REDIRECT_URL__'),
                             true,
                             Status::MOVED_PERMANENTLY
                         );

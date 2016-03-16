@@ -1,7 +1,7 @@
 # phossa-route
 [![Build Status](https://travis-ci.org/phossa/phossa-route.svg?branch=master)](https://travis-ci.org/phossa/phossa-route.svg?branch=master)
 [![HHVM Status](http://hhvm.h4cc.de/badge/phossa/phossa-route.svg)](http://hhvm.h4cc.de/package/phossa/phossa-route)
-[![Latest Stable Version](https://poser.pugx.org/phossa/phossa-route/v/stable)](https://packagist.org/packages/phossa/phossa-route)
+[![Latest Stable Version](https://img.shields.io/packagist/vpre/phossa/phossa-route.svg?style=flat)](https://packagist.org/packages/phossa/phossa-route)
 [![License](https://poser.pugx.org/phossa/phossa-route/license)](https://packagist.org/packages/phossa/phossa-route)
 
 Introduction

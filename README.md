@@ -1,5 +1,5 @@
 # phossa-route
-[![Build Status](https://travis-ci.org/phossa/phossa-route.svg?branch=master)](https://travis-ci.org/phossa/phossa-route.svg?branch=master)
+[![Build Status](https://travis-ci.org/phossa/phossa-route.svg?branch=master)](https://travis-ci.org/phossa/phossa-route)
 [![HHVM](https://img.shields.io/hhvm/phossa/phossa-route.svg?style=flat)](http://hhvm.h4cc.de/package/phossa/phossa-route)
 [![Latest Stable Version](https://img.shields.io/packagist/vpre/phossa/phossa-route.svg?style=flat)](https://packagist.org/packages/phossa/phossa-route)
 [![License](https://poser.pugx.org/phossa/phossa-route/license)](http://mit-license.org/)

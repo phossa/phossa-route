@@ -128,7 +128,8 @@ class Collector extends CollectorAbstract
      */
     protected function match(ResultInterface $result)/*# : bool */
     {
-        if (($res = $this->parser->match($result->getRequest()->getPathInfo()))) {
+        $res = $this->parser->match($result->getRequest()->getPathInfo());
+        if ($res) {
             list($routeKey, $params) = $res;
             return $this->getRoute($result, $routeKey, $params);
         }

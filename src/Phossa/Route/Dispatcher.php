@@ -281,8 +281,9 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     protected function defaultHandler()
     {
         if ($this->runExtensions(self::BEFORE_DEFAULT, $this->result)) {
-            $status = $this->result->getStatus();
-            if (($handler = $this->getHandler($status))) {
+            $status  = $this->result->getStatus();
+            $handler = $this->getHandler($status);
+            if ($handler) {
                 $handler($this->result);
             } else {
                 echo Message::get(Message::DEBUG_NEED_HANDLER, $status);

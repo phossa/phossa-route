@@ -710,13 +710,12 @@ Appendix
         server_name  www.mysite.com mysite.com;
         root         /path/www.mysite.com/public;
 
-        try_files $uri /index.php;
+        try_files $uri $uri/ /index.php$is_args$args;
 
-        # this will only pass index.php to the fastcgi process
         location /index.php {
             fastcgi_connect_timeout 3s;
             fastcgi_read_timeout 10s;
-            include fastcgi_params;
+            include fastcgi.conf;
             fastcgi_pass 127.0.0.1:9000;
         }
     }

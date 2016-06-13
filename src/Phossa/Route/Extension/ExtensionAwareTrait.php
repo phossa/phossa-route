@@ -57,7 +57,7 @@ trait ExtensionAwareTrait
     protected $counter  = 0;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function addExtension(
         callable $extension,
@@ -99,7 +99,7 @@ trait ExtensionAwareTrait
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function hasExtension(/*# string */ $stage = '')/*# : bool */
     {
@@ -109,7 +109,7 @@ trait ExtensionAwareTrait
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function runExtensions(
         /*# string */ $stage,

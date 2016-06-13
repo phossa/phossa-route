@@ -23,25 +23,37 @@ namespace Phossa\Route\Handler;
  * @package Phossa\Route
  * @author  Hong Zhang <phossa@126.com>
  * @see     ResolverInterface
- * @version 1.0.0
+ * @version 1.0.2
  * @since   1.0.0 added
+ * @since   1.0.2 added Controller/Action part
  */
 class ResolverAbstract implements ResolverInterface
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function resolve($handler)/*# : callable */
     {
+        // callable
         if (is_callable($handler)) {
             return $handler;
-        } else {
-            return function () use ($handler) {
-                echo sprintf(
-                    "UNKNOWN HANDLER %s\n",
-                    print_r($handler, true)
-                );
-            };
+
+        // append Controller/Action 1.0.2
+        } elseif (is_array($handler)) {
+            $controller = $handler[0] . 'Controller';
+            $action = $handler[1] . 'Action';
+            $h = [$controller, $action];
+            if (is_callable($h)) {
+                return $h;
+            }
         }
+
+        // unknown type
+        return function () use ($handler) {
+            echo sprintf(
+                "UNKNOWN HANDLER %s\n",
+                print_r($handler, true)
+            );
+        };
     }
 }

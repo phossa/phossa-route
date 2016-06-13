@@ -177,4 +177,27 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('jack', $res1->getParameter('name'));
         $this->assertEquals('1', $res1->getParameter('id'));
     }
+
+    /**
+     * @covers Phossa\Route\Dispatcher::loadRoute
+     */
+    public function testLoadRoute()
+    {
+        $this->object = (new Dispatcher())->loadRoute(__DIR__ . '/routes.php');
+
+        // match 1
+        $this->object->matchUrl('GET', 'user/phossa');
+        $this->assertTrue('handler1' == $this->object->getResult()->getHandler());
+
+        // match 3
+        $this->object->matchUrl('GET', 'user/list');
+        $this->assertTrue(['controller', 'action'] ==
+            $this->object->getResult()->getHandler());
+        $this->assertTrue('2' == $this->object->getResult()->getParameter('id'));
+
+        // match 2
+        $this->object->matchUrl('GET', 'user/view');
+        $this->assertTrue('handler2' == $this->object->getResult()->getHandler());
+        $this->assertTrue(23 == $this->object->getResult()->getParameter('id'));
+    }
 }

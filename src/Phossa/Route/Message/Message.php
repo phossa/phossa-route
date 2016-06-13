@@ -107,6 +107,10 @@ class Message extends MessageAbstract
      */
     const DEBUG_NEED_HANDLER    = 1603111817;
 
+    /**
+     * Route "%s" definition is bad
+     */
+    const ROUTE_BAD_FORMAT      = 1603111818;
     /**#@-*/
 
     /**
@@ -128,5 +132,6 @@ class Message extends MessageAbstract
         self::DEBUG_MATCH_REGEX     => 'Matched with regex "%s"',
         self::DEBUG_ADD_HANDLER     => 'Add handler "%s" to "%s"',
         self::DEBUG_NEED_HANDLER    => 'Need a default handler for status %s',
+        self::ROUTE_BAD_FORMAT      => 'Route "%s" definition is bad',
     ];
 }

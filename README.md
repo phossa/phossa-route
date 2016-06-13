@@ -87,6 +87,22 @@ Getting started
   $dispatcher->dispatch();
   ```
 
+- **Load routes from file**
+
+  ```php
+  use Phossa\Route\Dispatcher;
+
+  /*
+   * routes.php :
+   * return [
+   *     '/user/phossa'  => 'handler1',
+   *     '/user/{action:xd}/{id:d}'   => [['controller', 'action'], 'GET,POST'],
+   *     '/user/view[/{id:d}]' => ['handler2', 'GET', ['id' => 23]]
+   * ];
+   */
+  $dispatcher = (new Dispatcher())->loadRoute('./routes.php');
+  ```
+
 <a name="syntax"></a>Route syntax
 ---
 
@@ -156,6 +172,16 @@ User may pick his/her favorite route syntax with phossa-route :).
     Capturing groups `()` can not be used inside placeholders. For example
     `{user:(root|phossa)}` is not valid. Instead, you can use either use
     `{user:root|phossa}` or `{user:(?:root|phossa)}`.
+
+- **Default Values**
+
+  Default values can be added to named parameters at the end in the form of
+  `{action:xd=list}`. Default values have to be alphanumeric chars. For example,
+
+  ```php
+  // $action, $year/$month/$date are all optional
+  $pattern = '/blog[/{action:xd=list}][/{year:d=2016}[/{month:d=01}[/{date:d=01}]]]';
+  ```
 
 <a name="routes"></a>Routes
 ---

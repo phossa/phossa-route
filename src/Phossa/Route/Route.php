@@ -98,7 +98,7 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setPattern(/*# string */ $pattern = '')
     {
@@ -111,13 +111,18 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
             );
         }
 
+        // check default values in the pattern
+        if (false !== strpos($pattern, '=')) {
+            $pattern = $this->extractDefaultValues($pattern);
+        }
+
         $this->pattern = $pattern;
 
         return $this;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getPattern()/*# : string */
     {
@@ -125,7 +130,7 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setMethods(/*# string */ $methods)
     {
@@ -139,7 +144,7 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getMethods()/*# : array */
     {
@@ -147,7 +152,7 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function addFilter(/*# string */ $field, $filter)
     {
@@ -156,7 +161,7 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getFilters()/*# : array */
     {
@@ -164,7 +169,7 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setDefault(array $values)
     {
@@ -173,10 +178,34 @@ class Route implements RouteInterface, Extension\ExtensionAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getDefault()/*# : array */
     {
         return $this->defaults;
+    }
+
+    /**
+     * Extract default values from the pattern
+     *
+     * @param  string $pattern
+     * @return string
+     * @access protected
+     */
+    protected function extractDefaultValues(
+        /*# string */ $pattern
+    )/*# : string */ {
+        $regex = '~\{([a-zA-Z][a-zA-Z0-9_]*+)[^\}]*(=[a-zA-Z0-9._]++)\}~';
+        if (preg_match_all($regex, $pattern, $matches, \PREG_SET_ORDER)) {
+            $srch = $repl = $vals = [];
+            foreach ($matches as $m) {
+                $srch[] = $m[0];
+                $repl[] = str_replace($m[2], '', $m[0]);
+                $vals[$m[1]] = substr($m[2],1);
+            }
+            $this->setDefault($vals);
+            return str_replace($srch, $repl, $pattern);
+        }
+        return $pattern;
     }
 }

@@ -41,7 +41,7 @@ interface ResultInterface
      * Set status code
      *
      * @param  int $status
-     * @return static
+     * @return self
      * @access public
      * @api
      */
@@ -62,7 +62,7 @@ interface ResultInterface
      *
      * @param  string|array $key parameter key/name or parameter array
      * @param  string $value value to set
-     * @return static
+     * @return self
      * @access public
      * @api
      */
@@ -81,7 +81,7 @@ interface ResultInterface
      * Set handler
      *
      * @param  callable|array $handler
-     * @return static
+     * @return self
      * @access public
      * @api
      */
@@ -100,7 +100,7 @@ interface ResultInterface
      * Set the matched route
      *
      * @param  RouteInterface $route
-     * @return static
+     * @return self
      * @access public
      * @internal
      */

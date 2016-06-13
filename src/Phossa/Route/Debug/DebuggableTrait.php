@@ -46,7 +46,7 @@ trait DebuggableTrait
     protected $debugger;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setDebugger(LoggerInterface $logger)
     {
@@ -55,7 +55,7 @@ trait DebuggableTrait
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setDebugMode(/*# bool */ $status = true)
     {
@@ -64,7 +64,7 @@ trait DebuggableTrait
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getDebugMode()/*# : bool */
     {
@@ -72,7 +72,7 @@ trait DebuggableTrait
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function debug(/*# string */ $message)
     {
@@ -80,7 +80,7 @@ trait DebuggableTrait
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function info(/*# string */ $message)
     {
@@ -92,7 +92,7 @@ trait DebuggableTrait
      *
      * @param  string $level log level
      * @param  string $message message to log
-     * @return static
+     * @return self
      * @access protected
      */
     protected function log(/*# string */ $level, /*# string */ $message)

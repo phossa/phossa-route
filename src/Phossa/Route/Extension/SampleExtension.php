@@ -48,7 +48,7 @@ class SampleExtension implements ExtensionInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function __invoke(
         ResultInterface $result,

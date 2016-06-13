@@ -28,6 +28,7 @@ use Phossa\Route\Collector\CollectorInterface;
  * @see     Extension\ExtensionAwareInterface
  * @version 1.0.0
  * @since   1.0.0 added
+ * @since   1.0.2 added loadRoute()
  */
 class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, Extension\ExtensionAwareInterface, Collector\CollectorAwareInterface, Debug\DebuggableInterface, Collector\AddRouteInterface
 {
@@ -98,7 +99,7 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function match(ResultInterface $result = null)/*# : bool */
     {
@@ -113,7 +114,7 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function dispatch(ResultInterface $result = null)/*# : bool */
     {
@@ -135,7 +136,7 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function matchUrl(
         /*# string */ $httpMethod = '',
@@ -145,7 +146,7 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function dispatchUrl(
         /*# string */ $httpMethod = '',
@@ -155,7 +156,7 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getResult()/*# : Context\ResultInterface */
     {
@@ -170,6 +171,15 @@ class Dispatcher implements DispatcherInterface, Handler\HandlerAwareInterface, 
     public function addRoute(RouteInterface $route)
     {
         $this->getCollectors()[0]->addRoute($route);
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function loadRoute($fileOrArray)
+    {
+        $this->getCollectors()[0]->loadRoute($fileOrArray);
         return $this;
     }
 

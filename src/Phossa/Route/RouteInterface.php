@@ -32,7 +32,7 @@ interface RouteInterface extends Handler\HandlerAwareInterface
      * Set $_SERVER['PATH_INFO'] matching pattern
      *
      * @param  string $pattern pattern to match
-     * @return static
+     * @return self
      * @throws LogicException if pattern malformed
      * @access public
      * @internal
@@ -52,7 +52,7 @@ interface RouteInterface extends Handler\HandlerAwareInterface
      * Set route http methods allowed like 'GET|HEAD|POST'
      *
      * @param  string $methods method to match
-     * @return static
+     * @return self
      * @access public
      * @internal
      */
@@ -78,7 +78,7 @@ interface RouteInterface extends Handler\HandlerAwareInterface
      *
      * @param  string $field something like 'server.server_name'
      * @param  string|callable $filter regex pattern or callable
-     * @return static
+     * @return self
      * @access public
      * @api
      */
@@ -97,7 +97,7 @@ interface RouteInterface extends Handler\HandlerAwareInterface
      * Set default values for placeholders/parameters
      *
      * @param  array $values default values
-     * @return static
+     * @return self
      * @access public
      * @internal
      */

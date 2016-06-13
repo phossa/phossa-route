@@ -83,7 +83,7 @@ class Result implements ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getStatus()/*# : int */
     {
@@ -91,7 +91,7 @@ class Result implements ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setStatus(/*# int */ $status)
     {
@@ -100,7 +100,7 @@ class Result implements ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getParameter(/*# string */ $key = '')
     {
@@ -114,7 +114,7 @@ class Result implements ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setParameter($key, /*# string */ $value = '')
     {
@@ -127,14 +127,14 @@ class Result implements ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getRequest()/*# : RequestInterface */
     {
         return $this->request;
     }
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setHandler($handler)
     {
@@ -145,7 +145,7 @@ class Result implements ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getHandler()
     {
@@ -153,7 +153,7 @@ class Result implements ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setRoute(RouteInterface $route)
     {
@@ -162,7 +162,7 @@ class Result implements ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getRoute()/*# : RouteInterface */
     {

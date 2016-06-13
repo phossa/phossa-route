@@ -68,7 +68,7 @@ class CollectorQPR extends CollectorAbstract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function addRoute(RouteInterface $route)
     {

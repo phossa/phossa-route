@@ -32,7 +32,7 @@ interface DebuggableInterface
      * Set debugger
      *
      * @param  LoggerInterface $logger
-     * @return static
+     * @return self
      * @access public
      * @api
      */
@@ -42,7 +42,7 @@ interface DebuggableInterface
      * Set debugging status
      *
      * @param  bool $status
-     * @return static
+     * @return self
      * @access public
      * @api
      */
@@ -61,7 +61,7 @@ interface DebuggableInterface
      * spit debugging message
      *
      * @param  string $message message to send out
-     * @return static
+     * @return self
      * @access public
      * @internal
      */
@@ -71,7 +71,7 @@ interface DebuggableInterface
      * spit info message
      *
      * @param  string $message message to send out
-     * @return static
+     * @return self
      * @access public
      * @internal
      */

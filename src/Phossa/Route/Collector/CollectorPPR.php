@@ -40,7 +40,7 @@ use Phossa\Route\Exception\LogicException;
 class CollectorPPR extends CollectorAbstract
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function addRoute(RouteInterface $route)
     {

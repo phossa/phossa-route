@@ -39,7 +39,7 @@ trait CollectorAwareTrait
     protected $collectors = [];
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function addCollector(CollectorInterface $collector)
     {
@@ -65,7 +65,7 @@ trait CollectorAwareTrait
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getCollectors()/*# : array */
     {

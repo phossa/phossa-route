@@ -60,7 +60,7 @@ class ParserStd extends ParserAbstract
     protected $data  = [];
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function parse(
         /*# string */ $name,
@@ -81,7 +81,7 @@ class ParserStd extends ParserAbstract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function match(/*# string */ $url)
     {
@@ -99,7 +99,7 @@ class ParserStd extends ParserAbstract
      *
      * @param  string $name regex name
      * @param  string $pattern pattern to parse
-     * @return static
+     * @return self
      * @access protected
      */
     protected function convert(

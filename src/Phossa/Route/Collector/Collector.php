@@ -81,7 +81,7 @@ class Collector extends CollectorAbstract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function addRoute(RouteInterface $route)
     {
@@ -124,7 +124,7 @@ class Collector extends CollectorAbstract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function match(ResultInterface $result)/*# : bool */
     {

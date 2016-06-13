@@ -76,7 +76,7 @@ class ParserGcb extends ParserAbstract
     protected $xmap  = [];
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function parse(
         /*# string */ $name,
@@ -98,7 +98,7 @@ class ParserGcb extends ParserAbstract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function match(/*# string */ $url)
     {

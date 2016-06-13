@@ -30,7 +30,7 @@ interface CollectorAwareInterface
      * Inject a collector
      *
      * @param  CollectorInterface $collector
-     * @return static
+     * @return self
      * @access public
      * @api
      */

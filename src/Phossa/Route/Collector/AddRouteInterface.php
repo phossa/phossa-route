@@ -26,8 +26,9 @@ use Phossa\Route\Exception\LogicException;
  * @interface
  * @package Phossa\Route
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.0
+ * @version 1.0.2
  * @since   1.0.0 added
+ * @since   1.0.2 added loadRoute()
  */
 interface AddRouteInterface
 {
@@ -35,7 +36,7 @@ interface AddRouteInterface
      * Add one route to the collector
      *
      * @param  RouteInterface $route
-     * @return static
+     * @return self
      * @throws LogicException if route goes wrong
      * @access public
      * @api
@@ -43,12 +44,34 @@ interface AddRouteInterface
     public function addRoute(RouteInterface $route);
 
     /**
+     * Add multiple routes from file or array, format is
+     *
+     * ```php
+     * return [
+     *     '/user/{action:xd}/{id:d}' => [
+     *         ['collecor', 'action'],   // handler
+     *         'GET,POST',               // methods
+     *         ['id' => 1]               // defaults
+     *     ],
+     *     ...
+     * ];
+     * ```
+     *
+     * @param  string|array $fileOrArray
+     * @return self
+     * @throws LogicException if route goes wrong
+     * @access public
+     * @api
+     */
+    public function loadRoute($fileOrArray);
+
+    /**
      * Add a 'GET,HEAD' route
      *
      * @param  string $pathPattern url pattern
      * @param  callable|array $handler
      * @param  array $defaultValues default values for placeholders
-     * @return static
+     * @return self
      * @access public
      * @api
      */
@@ -64,7 +87,7 @@ interface AddRouteInterface
      * @param  string $pathPattern url pattern
      * @param  callable|array $handler
      * @param  array $defaultValues default values for placeholders
-     * @return static
+     * @return self
      * @access public
      * @api
      */

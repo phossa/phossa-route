@@ -43,7 +43,7 @@ trait HandlerAwareTrait
     protected $handlers = [];
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function addHandler(/*# int */ $status, $handler = null)
     {
@@ -63,7 +63,7 @@ trait HandlerAwareTrait
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getHandler(/*# int */ $status)
     {

@@ -58,7 +58,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getHttpMethod()/*# : string */
     {
@@ -67,7 +67,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getPathInfo()/*# : string */
     {
@@ -75,7 +75,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getServerInfo(/*# string */ $key = '')
     {
@@ -83,7 +83,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getRequestInfo(/*# string */ $key = '')
     {

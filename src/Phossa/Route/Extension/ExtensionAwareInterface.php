@@ -36,7 +36,7 @@ interface ExtensionAwareInterface
      * @param  callable $extension
      * @param  string $stage stage to process
      * @param  int $priority  range 0 - 100
-     * @return static
+     * @return self
      * @throws LogicException if stage not found
      * @access public
      * @api

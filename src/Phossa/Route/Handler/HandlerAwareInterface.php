@@ -31,7 +31,7 @@ interface HandlerAwareInterface
      *
      * @param  int $status status when execute this handler
      * @param  callable|array $handler callable or ['controller','method']
-     * @return static
+     * @return self
      * @access public
      * @api
      */

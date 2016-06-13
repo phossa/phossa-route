@@ -31,6 +31,7 @@ use Phossa\Route\Extension\ExtensionAwareInterface;
  * @see     CollectorInterface
  * @version 1.0.0
  * @since   1.0.0 added
+ * @since   1.0.2 added loadRoute()
  */
 abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInterface, ExtensionAwareInterface, DebuggableInterface
 {
@@ -51,12 +52,41 @@ abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInte
     /**#@-*/
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     abstract public function addRoute(RouteInterface $route);
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     */
+    public function loadRoute($fileOrArray)
+    {
+        // load from file
+        if (is_string($fileOrArray)) {
+            $fileOrArray = require $fileOrArray;
+        }
+
+        foreach ($fileOrArray as $p => $r) {
+            // $r = ['handler', 'GET,POST', ['defaults']];
+            if (is_array($r)) {
+                $handler = $r[0];
+                $method  = isset($r[1]) ? $r[1] : 'GET';
+                $default = isset($r[2]) ? $r[2] : [];
+            } elseif (is_string($r)) {
+                $handler = $r;
+                $method  = 'GET';
+                $default = [];
+            } else {
+                $this->debug(Message::get(Message::ROUTE_BAD_FORMAT, $p));
+                continue;
+            }
+            $this->addRoute(new Route($method, $p, $handler, $default));
+        }
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function matchRoute(ResultInterface $result)/*# : bool */
     {
@@ -85,7 +115,7 @@ abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInte
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function addGet(
         /*# string */ $pathPattern,
@@ -98,7 +128,7 @@ abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInte
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function addPost(
         /*# string */ $pathPattern,
@@ -114,7 +144,7 @@ abstract class CollectorAbstract implements CollectorInterface, HandlerAwareInte
      * Set collector level handler if result has no handler set yet
      *
      * @param  ResultInterface $result desc
-     * @return static
+     * @return self
      * @access protected
      */
     protected function setCollectorHandler(ResultInterface $result)
